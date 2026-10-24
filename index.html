@@ -1,0 +1,1730 @@
+<!doctype html>
+<html lang="lt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1e7a4c">
+<meta name="color-scheme" content="light dark">
+<!-- iPhone: „Bendrinti → Į pradžios ekraną“ atidaro kaip atskirą programėlę -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Pardavimai">
+<meta name="format-detection" content="telephone=no">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Pardavimai ir skolos</title>
+<style>
+:root {
+  --bg: #f2f4f1;
+  --card: #ffffff;
+  --text: #18201b;
+  --muted: #5d6962;
+  --line: #dce1dc;
+  --pri: #1e7a4c;
+  --pri-ink: #ffffff;
+  --pri-soft: #e3f1e9;
+  --red: #c42b2b;
+  --red-ink: #ffffff;
+  --red-soft: #fdeceb;
+  --amber: #a35c00;
+  --amber-ink: #ffffff;
+  --amber-soft: #fff0d6;
+  --shadow: 0 1px 2px rgba(20, 30, 25, .07), 0 2px 8px rgba(20, 30, 25, .04);
+  --tabh: 62px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #111513;
+    --card: #1b211e;
+    --text: #e6ebe8;
+    --muted: #9ca8a1;
+    --line: #2e3632;
+    --pri: #45aa76;
+    --pri-ink: #06150d;
+    --pri-soft: #1a3427;
+    --red: #f07272;
+    --red-ink: #1c0707;
+    --red-soft: #3b1e1e;
+    --amber: #e6a84e;
+    --amber-ink: #1d1204;
+    --amber-soft: #352810;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+body.noscroll { overflow: hidden; }
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:disabled { cursor: default; }
+code { font-size: 14px; }
+.num, b, .v, .amt { font-variant-numeric: tabular-nums; }
+
+header.top {
+  position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; padding-top: calc(10px + env(safe-area-inset-top));
+  background: var(--pri); color: var(--pri-ink);
+}
+header.top h1 { flex: 1; margin: 0; font-size: 19px; font-weight: 700; line-height: 1.2; }
+.hbtn {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+  border: 1px solid currentColor; border-radius: 10px; background: transparent; color: inherit;
+  font-size: 15px; font-weight: 650;
+}
+.hbtn[aria-pressed="true"] { background: var(--pri-ink); color: var(--pri); border-color: var(--pri-ink); }
+
+main { max-width: 760px; margin: 0 auto; padding: 12px 12px calc(var(--tabh) + 28px + env(safe-area-inset-bottom)); }
+.card { background: var(--card); border-radius: 16px; padding: 14px; margin-bottom: 12px; box-shadow: var(--shadow); }
+.card h2 { margin: 0 0 10px; font-size: 16.5px; }
+.card h3 { margin: 14px 0 8px; font-size: 15px; color: var(--muted); }
+.card h3:first-of-type { margin-top: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.red { color: var(--red); }
+.ok { color: var(--pri); }
+.warn { color: var(--amber); }
+.mt { margin-top: 10px; }
+.mb { margin-bottom: 10px; }
+.hint { margin: 8px 0 0; font-size: 14.5px; font-weight: 600; }
+.empty { text-align: center; color: var(--muted); padding: 28px 8px; }
+.row2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+
+.f { display: block; margin: 0 0 4px; font-size: 13.5px; color: var(--muted); font-weight: 650; }
+input, select, textarea {
+  display: block; width: 100%; min-width: 0; min-height: 48px; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--text);
+  font: inherit; font-size: 16px;
+}
+input:focus, select:focus, textarea:focus { outline: 2px solid var(--pri); outline-offset: -1px; border-color: var(--pri); }
+input.bad { border-color: var(--red); background: var(--red-soft); }
+textarea { min-height: 100px; resize: vertical; line-height: 1.4; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 48px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--card); color: var(--text); font-weight: 650; text-align: center; line-height: 1.2;
+}
+.btn.pri { background: var(--pri); border-color: var(--pri); color: var(--pri-ink); }
+.btn.danger { color: var(--red); border-color: var(--red); }
+.btn.dangerfill { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+.btn.sm { min-height: 40px; padding: 0 12px; font-size: 14.5px; border-radius: 10px; }
+.btn.block { display: flex; width: 100%; }
+.btn:disabled { opacity: .5; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn:active, .tile:active, .chip:active, .pm:active, .debtor:active { transform: scale(.98); }
+.link { background: none; border: 0; padding: 6px 0; min-height: 40px; color: var(--pri); font-weight: 650; }
+.link.dl { color: var(--red); font-size: 14px; min-height: 36px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips.scrollx { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.chips.scrollx::-webkit-scrollbar { display: none; }
+.chip {
+  flex: none; min-height: 42px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px;
+  background: var(--card); font-weight: 600; font-size: 15px; white-space: nowrap;
+}
+.chip[aria-pressed="true"] { background: var(--pri); border-color: var(--pri); color: var(--pri-ink); }
+
+/* Pardavimo įvedimas */
+.todayline {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 12px;
+  padding: 10px 14px; border-radius: 14px; background: var(--pri-soft); font-size: 15px;
+}
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.tile {
+  position: relative; min-height: 70px; padding: 10px 12px; border: 1px solid transparent;
+  border-radius: 14px; background: var(--pri-soft); text-align: left;
+}
+.tile b { display: block; font-size: 16px; line-height: 1.25; padding-right: 30px; overflow-wrap: anywhere; }
+.tile .pr { font-size: 14px; color: var(--muted); }
+.tile .cnt {
+  position: absolute; top: 6px; right: 6px; min-width: 26px; height: 26px; padding: 0 6px;
+  border-radius: 13px; background: var(--pri); color: var(--pri-ink);
+  font-size: 14px; font-weight: 700; line-height: 26px; text-align: center;
+}
+.cart-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cart-h h2 { margin: 0; }
+.cl { padding: 12px 0; border-top: 1px solid var(--line); }
+.cl-h { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.cl-h b { flex: 1; min-width: 0; font-size: 16.5px; overflow-wrap: anywhere; }
+.cl-t { font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.x { flex: none; width: 40px; height: 40px; border: 0; border-radius: 10px; background: var(--red-soft); color: var(--red); font-size: 17px; }
+.cl-g { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 10px; align-items: end; }
+.cl-g + .cl-g { margin-top: 8px; }
+.qty { display: flex; }
+.qty button { flex: none; width: 46px; min-height: 48px; border: 1px solid var(--line); background: var(--pri-soft); color: var(--pri); font-size: 22px; font-weight: 700; }
+.qty button:first-child { border-radius: 10px 0 0 10px; }
+.qty button:last-child { border-radius: 0 10px 10px 0; }
+.qty input { border-radius: 0; border-left: 0; border-right: 0; text-align: center; padding: 10px 2px; }
+.disc { display: flex; gap: 6px; }
+.disc .chip { min-width: 54px; min-height: 48px; border-radius: 10px; }
+.disc-out { padding-bottom: 12px; font-weight: 650; color: var(--amber); }
+.cart-sum { display: grid; gap: 2px; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 15px; }
+.cart-sum div { display: flex; justify-content: space-between; gap: 10px; }
+.cart-sum .strong { font-size: 17px; font-weight: 750; }
+.paygrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.pm { min-height: 52px; padding: 0 4px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--card); font-weight: 650; font-size: 15.5px; }
+.pm[aria-pressed="true"] { background: var(--pri); border-color: var(--pri); color: var(--pri-ink); }
+.pm.m-skola[aria-pressed="true"] { background: var(--red); border-color: var(--red); color: var(--red-ink); }
+.pm.m-dalinis[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: var(--amber-ink); }
+.bigv { font-size: 22px; font-weight: 800; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.rest { padding: 10px 0 4px; }
+.savebar {
+  position: sticky; bottom: calc(var(--tabh) + 10px + env(safe-area-inset-bottom)); z-index: 10;
+  display: flex; align-items: center; gap: 12px; padding: 10px 10px 10px 16px;
+  border: 1px solid var(--line); border-radius: 16px; background: var(--card); box-shadow: 0 4px 18px rgba(0, 0, 0, .14);
+}
+.savebar .tot { flex: 1; min-width: 0; line-height: 1.15; }
+.savebar .tot small { display: block; font-size: 13px; color: var(--muted); }
+.savebar .tot b { font-size: 23px; white-space: nowrap; }
+.savebar .btn { min-height: 54px; padding: 0 20px; font-size: 17px; }
+
+/* Sąrašai */
+.banner {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-bottom: 12px;
+  padding: 10px 14px; border-radius: 14px; background: var(--amber-soft); font-size: 14.5px;
+}
+.banner span { flex: 1 1 190px; }
+.banner.err { background: var(--red-soft); color: var(--red); font-weight: 600; }
+.sumline { display: flex; flex-wrap: wrap; gap: 2px 14px; padding: 2px 4px 0; font-size: 15px; }
+.dayh { display: flex; justify-content: space-between; gap: 10px; margin: 16px 4px 6px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.sale { margin-bottom: 8px; padding: 12px 14px; border-left: 4px solid transparent; border-radius: 14px; background: var(--card); box-shadow: var(--shadow); }
+.sale.debt { border-left-color: var(--red); }
+.sale-h { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.sale-h .who { flex: 1 1 auto; min-width: 0; font-weight: 700; overflow-wrap: anywhere; }
+.sale-h b { font-size: 17px; }
+.sale-items { margin: 4px 0; font-size: 14.5px; }
+.sale-f { font-size: 13.5px; color: var(--muted); }
+.sale .btns { margin-top: 10px; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--pri-soft); color: var(--pri); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.badge.m-skola { background: var(--red-soft); color: var(--red); }
+.badge.m-dalinis { background: var(--amber-soft); color: var(--amber); }
+.badge.demo { background: var(--line); color: var(--muted); }
+
+/* Skolos */
+.sumcard .l { font-size: 14px; font-weight: 650; color: var(--muted); }
+.sumcard .v { font-size: 30px; font-weight: 800; line-height: 1.2; }
+.debtor {
+  display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 8px; padding: 14px;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--card); text-align: left; box-shadow: var(--shadow);
+}
+.debtor .nm { flex: 1; min-width: 0; }
+.debtor .nm b { display: block; font-size: 17px; overflow-wrap: anywhere; }
+.debtor .age { font-size: 14px; color: var(--muted); }
+.debtor .amt { font-size: 19px; font-weight: 800; white-space: nowrap; }
+.debtor.overdue { border-color: var(--red); background: var(--red-soft); }
+.debtor.overdue .amt, .debtor.overdue .age { color: var(--red); font-weight: 650; }
+.debtor.overdue .amt { font-weight: 800; }
+.chev { color: var(--muted); font-size: 24px; line-height: 1; }
+details.others summary { min-height: 44px; display: flex; align-items: center; font-weight: 650; cursor: pointer; }
+.orow { display: flex; justify-content: space-between; gap: 10px; width: 100%; min-height: 48px; padding: 0 4px; border: 0; border-top: 1px solid var(--line); background: none; text-align: left; align-items: center; }
+.cust.overdue { outline: 2px solid var(--red); }
+.cust h2 { font-size: 21px; margin-bottom: 4px; overflow-wrap: anywhere; }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin-top: 12px; font-size: 15px; }
+.kv span { color: var(--muted); }
+.kv b { text-align: right; }
+.ev { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+.ev:first-of-type { border-top: 0; }
+.ev .d { font-size: 13px; color: var(--muted); }
+.ev .t { font-weight: 650; overflow-wrap: anywhere; }
+.ev .v { text-align: right; font-weight: 750; white-space: nowrap; }
+.ev .b { text-align: right; font-size: 13px; color: var(--muted); white-space: nowrap; }
+.ev.pay .v { color: var(--pri); }
+.ev.late .t, .ev.late .d { color: var(--red); }
+
+/* Ataskaitos */
+.range { margin: 10px 0 12px; font-weight: 650; }
+.stats { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.stat { padding: 12px; border-radius: 12px; background: var(--bg); }
+.stat.wide { grid-column: 1 / -1; }
+.stat .l { font-size: 13px; font-weight: 650; color: var(--muted); }
+.stat .v { font-size: 20px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
+.stat .s { margin-top: 2px; font-size: 13px; color: var(--muted); }
+.cscroll { overflow-x: auto; }
+.bars { position: relative; display: flex; align-items: stretch; gap: 2px; height: 190px; padding-top: 20px; border-bottom: 1px solid var(--muted); }
+.col { position: relative; flex: 1 0 var(--minw, 0px); display: flex; align-items: flex-end; justify-content: center; padding: 0; border: 0; border-radius: 4px 4px 0 0; background: none; }
+.col:hover, .col.sel { background: var(--pri-soft); }
+.col i { display: block; width: 100%; max-width: 24px; height: var(--h); border-radius: 4px 4px 0 0; background: var(--pri); }
+.col.sel i { background: var(--amber); }
+.col .bv { position: absolute; left: 50%; bottom: calc(var(--h) + 3px); transform: translateX(-50%); font-size: 11px; color: var(--muted); white-space: nowrap; }
+.xl { display: flex; gap: 2px; padding-top: 4px; }
+.xl span { flex: 1 0 var(--minw, 0px); text-align: center; font-size: 11px; line-height: 1.2; color: var(--muted); white-space: nowrap; }
+.xl span.now { color: var(--text); font-weight: 700; }
+.cap { min-height: 22px; margin: 8px 0 0; font-size: 14px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tbl td, .tbl th { padding: 6px 4px; border-bottom: 1px solid var(--line); text-align: left; }
+.tbl td:last-child, .tbl th:last-child { text-align: right; }
+.top { display: grid; gap: 10px; }
+.top-r { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 3px 8px; align-items: center; font-size: 15px; }
+.top-r .n { color: var(--muted); font-weight: 700; }
+.top-r .tb { grid-column: 2 / -1; height: 6px; border-radius: 3px; background: var(--pri-soft); overflow: hidden; }
+.top-r .tb i { display: block; height: 100%; border-radius: 3px; background: var(--pri); }
+details.more summary { cursor: pointer; color: var(--pri); font-weight: 650; min-height: 40px; display: flex; align-items: center; }
+
+/* Prekės */
+.prod-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.prod-h b { font-size: 17px; overflow-wrap: anywhere; }
+.marginbox { min-height: 48px; padding: 12px; border-radius: 10px; background: var(--bg); font-size: 15px; }
+
+/* Apatinis meniu */
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr));
+  border-top: 1px solid var(--line); background: var(--card); padding-bottom: env(safe-area-inset-bottom);
+}
+nav.tabs button {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  height: var(--tabh); border: 0; background: none; color: var(--muted); font-size: 11.5px; font-weight: 650;
+}
+nav.tabs svg { width: 24px; height: 24px; }
+nav.tabs button[aria-current="page"] { color: var(--pri); }
+nav.tabs button[aria-current="page"]::before { content: ""; position: absolute; top: 0; left: 22%; right: 22%; height: 3px; border-radius: 0 0 3px 3px; background: var(--pri); }
+.tbadge { position: absolute; top: 5px; left: calc(50% + 6px); min-width: 19px; height: 19px; padding: 0 5px; border-radius: 10px; background: var(--muted); color: var(--card); font-size: 11.5px; line-height: 19px; }
+.tbadge.hot { background: var(--red); color: var(--red-ink); }
+svg.i { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Langai ir pranešimai */
+.mback { position: fixed; inset: 0; z-index: 50; display: flex; align-items: flex-end; justify-content: center; background: rgba(0, 0, 0, .45); }
+.sheet {
+  width: 100%; max-width: 560px; max-height: 92vh; max-height: 92dvh; overflow-y: auto;
+  padding: 18px 16px calc(16px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; background: var(--card);
+}
+@media (min-width: 600px) { .mback { align-items: center; } .sheet { border-radius: 18px; } }
+.sheet h2 { margin: 0 0 12px; font-size: 19px; }
+.fld { margin-bottom: 12px; }
+.m-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.ask { margin: 4px 0 8px; font-size: 17px; white-space: pre-line; overflow-wrap: anywhere; }
+#toast {
+  position: fixed; left: 50%; bottom: calc(var(--tabh) + 16px + env(safe-area-inset-bottom)); z-index: 60;
+  max-width: calc(100% - 32px); padding: 12px 16px; border-radius: 12px; background: #1d2621; color: #fff;
+  font-size: 15px; font-weight: 600; box-shadow: 0 6px 24px rgba(0, 0, 0, .25);
+  opacity: 0; pointer-events: none; transform: translate(-50%, 16px); transition: opacity .2s, transform .2s;
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+#toast.err { background: #b02525; }
+.testres { margin: 10px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.testres li { padding: 4px 0; border-bottom: 1px solid var(--line); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .btn:active, .tile:active, .chip:active, .pm:active, .debtor:active { transform: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1 id="title">Pardavimai ir skolos</h1>
+  <button type="button" class="hbtn" id="btn-data" data-a="data" aria-pressed="false">
+    <svg class="i" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 3v11m0 0-4-4m4 4 4-4M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+    Duomenys
+  </button>
+</header>
+<main>
+  <div id="banners"></div>
+  <div id="view"></div>
+</main>
+<nav class="tabs" aria-label="Skiltys">
+  <button type="button" data-a="tab" data-tab="parduoti"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 10.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1L20.5 8H6"/><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/></svg><span>Parduoti</span></button>
+  <button type="button" data-a="tab" data-tab="pardavimai"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg><span>Pardavimai</span></button>
+  <button type="button" data-a="tab" data-tab="skolos"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5v-15A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3"/><path d="M9 8h6M9 11.5h4"/></svg><span>Skolos</span><span class="tbadge" id="badge-skolos" hidden></span></button>
+  <button type="button" data-a="tab" data-tab="ataskaitos"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></svg><span>Ataskaitos</span></button>
+  <button type="button" data-a="tab" data-tab="prekes"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12.5V4a1 1 0 0 1 1-1h8.5l8.2 8.2a1.5 1.5 0 0 1 0 2.1l-7.4 7.4a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.5"/></svg><span>Prekės</span></button>
+</nav>
+<datalist id="dl-cust"></datalist>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- Skaičiavimai: be jokių nuorodų į puslapį, todėl juos galima testuoti atskirai -->
+<script id="core">
+const Core = (function () {
+  'use strict';
+
+  const APP_ID = 'maisto-apskaita';
+  const UNITS = ['vnt.', 'kg', 'porcija'];
+  const UNIT_SHORT = { 'vnt.': 'vnt.', kg: 'kg', porcija: 'porc.' };
+  const METHODS = ['grynais', 'kortele', 'pavedimu', 'skola', 'dalinis'];
+  const MONEY = ['grynais', 'kortele', 'pavedimu'];
+  const METHOD_LABEL = { grynais: 'Grynais', kortele: 'Kortele', pavedimu: 'Pavedimu', skola: 'Skola', dalinis: 'Dalinis' };
+  const OVERDUE_DAYS = 14;
+  const DAY_MS = 86400000;
+  const WEEKDAYS = ['pirmadienis', 'antradienis', 'trečiadienis', 'ketvirtadienis', 'penktadienis', 'šeštadienis', 'sekmadienis'];
+  const WD_SHORT = ['Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št', 'Sk'];
+  const MONTHS_SHORT = ['saus.', 'vas.', 'kov.', 'bal.', 'geg.', 'birž.', 'liep.', 'rugp.', 'rugs.', 'spal.', 'lapkr.', 'gruod.'];
+
+  /* ---- Skaičiai. Pinigai sumuojami centais, kad neatsirastų 0,1 + 0,2 = 0,30000000000000004 ---- */
+  function parseNum(v) {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : null;
+    const s = String(v == null ? '' : v).replace(/[\s  ]/g, '').replace(',', '.');
+    if (!/^-?(\d+\.?\d*|\.\d+)$/.test(s)) return null;
+    return Number(s);
+  }
+  function num(v) { const n = parseNum(v); return n == null ? 0 : n; }
+  function scaled(x, f) {
+    x = Number(x);
+    if (!Number.isFinite(x)) return 0;
+    const v = Math.abs(x) * f, fl = Math.floor(v);
+    // 1,005 kompiuteryje yra 1,00499999…; tokią „beveik pusę“ laikome puse ir apvaliname į viršų
+    const r = v - fl >= 0.5 - 1e-7 ? fl + 1 : fl;
+    return (x < 0 ? -r : r) || 0;
+  }
+  const cents = x => scaled(x, 100);
+  const round2 = x => cents(x) / 100;
+  const round3 = x => scaled(x, 1000) / 1000;
+
+  function fmtAmount(x, group) {
+    const c = cents(x), a = Math.abs(c);
+    let int = String(Math.floor(a / 100));
+    if (group) int = int.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return (c < 0 ? '-' : '') + int + ',' + String(a % 100).padStart(2, '0');
+  }
+  function fmtMoney(x) { const s = fmtAmount(x, true); return (s[0] === '-' ? '−' + s.slice(1) : s) + ' €'; }
+  function fmtQty(q) { return String(round3(q)).replace('.', ','); }
+  function fmtPct(p) { return (Math.round(p * 10) / 10).toFixed(1).replace('.', ',') + ' %'; }
+
+  /* ---- Datos (YYYY-MM-DD, skaičiuojama UTC, kad netrukdytų vasaros laikas) ---- */
+  const pad = n => String(n).padStart(2, '0');
+  function localToday(d) { d = d || new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function dayNum(s) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || '');
+    return m ? Math.round(Date.UTC(+m[1], +m[2] - 1, +m[3]) / DAY_MS) : NaN;
+  }
+  function fromDayNum(n) { return new Date(n * DAY_MS).toISOString().slice(0, 10); }
+  function isDate(s) { const n = dayNum(s); return Number.isFinite(n) && fromDayNum(n) === s; }
+  const addDays = (s, k) => fromDayNum(dayNum(s) + k);
+  const daysBetween = (a, b) => dayNum(b) - dayNum(a);
+  const weekday = s => (new Date(dayNum(s) * DAY_MS).getUTCDay() + 6) % 7; // 0 = pirmadienis
+  function periodRange(kind, today, from, to) {
+    if (kind === 'today') return { from: today, to: today };
+    if (kind === 'week') { const f = addDays(today, -weekday(today)); return { from: f, to: addDays(f, 6) }; }
+    if (kind === 'month') {
+      const y = +today.slice(0, 4), m = +today.slice(5, 7);
+      return { from: today.slice(0, 8) + '01', to: today.slice(0, 8) + pad(new Date(Date.UTC(y, m, 0)).getUTCDate()) };
+    }
+    let a = isDate(from) ? from : today, b = isDate(to) ? to : today;
+    if (a > b) [a, b] = [b, a];
+    return { from: a, to: b };
+  }
+
+  /* ---- Pirkėjai: „Jonas“, „ jonas “ ir „JONAS“ — tas pats žmogus ---- */
+  const cleanName = s => String(s == null ? '' : s).replace(/\s+/g, ' ').trim().slice(0, 80);
+  const custKey = s => cleanName(s).toLowerCase();
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const cmpRec = (a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : (a.createdAt || 0) - (b.createdAt || 0) || (a.no || 0) - (b.no || 0));
+
+  /* ---- Pardavimo eilutė ir visas pardavimas ---- */
+  function lineCalc(it) {
+    const qty = round3(num(it.qty)), price = round2(num(it.price));
+    const gross = round2(qty * price);
+    const dv = Math.max(num(it.discValue), 0);
+    let disc = it.discType === 'pct' ? round2(gross * Math.min(dv, 100) / 100) : round2(dv);
+    if (disc > gross) disc = gross;
+    const total = round2(gross - disc);
+    const costTotal = round2(qty * num(it.cost));
+    return { qty, price, gross, disc, total, costTotal, profit: round2(total - costTotal) };
+  }
+  // Išsaugoto pardavimo prekės užšaldomos (nekeičiamos), todėl jų sumas galima įsiminti.
+  // Krepšelio (dar neišsaugoto) eilutės nėra užšaldytos ir kaskart skaičiuojamos iš naujo.
+  const linesCache = new WeakMap();
+  function freezeItems(items) { items.forEach(Object.freeze); return Object.freeze(items); }
+  function saleLines(items) {
+    const hit = linesCache.get(items);
+    if (hit) return hit;
+    let gross = 0, disc = 0, total = 0, cost = 0;
+    const lines = items.map(it => {
+      const l = lineCalc(it);
+      gross += cents(l.gross); disc += cents(l.disc); total += cents(l.total); cost += cents(l.costTotal);
+      return l;
+    });
+    const r = { lines, gross, disc, total, cost };
+    if (Object.isFrozen(items)) linesCache.set(items, r);
+    return r;
+  }
+  function saleCalc(sale) {
+    const { gross, disc, total, cost } = saleLines(sale.items || []);
+    let paid = 0;
+    if (MONEY.includes(sale.method)) paid = total;
+    else if (sale.method === 'dalinis') paid = Math.min(Math.max(cents(sale.paid), 0), total);
+    return { gross: gross / 100, disc: disc / 100, total: total / 100, cost: cost / 100, profit: (total - cost) / 100, paid: paid / 100, debt: (total - paid) / 100 };
+  }
+  function margin(cost, price) {
+    const c = cents(cost), p = cents(price);
+    return { eur: (p - c) / 100, pct: p > 0 ? (p - c) / p * 100 : null };
+  }
+  function methodText(sale) {
+    if (sale.method !== 'dalinis') return METHOD_LABEL[sale.method];
+    return 'Dalinis (' + METHOD_LABEL[sale.paidMethod].toLowerCase() + ' ' + fmtAmount(sale.paid) + ')';
+  }
+
+  /* ---- Skolos. Niekur nesaugomos — kaskart skaičiuojamos iš pardavimų ir apmokėjimų.
+          Apmokėjimai dengia seniausias skolas pirmiausia. ---- */
+  function buildLedgers(data) {
+    const map = new Map();
+    const get = name => {
+      const key = custKey(name);
+      if (!key) return null;
+      let c = map.get(key);
+      if (!c) { c = { key, name: cleanName(name), sales: [], payments: [], boughtC: 0, debtC: 0, paidLaterC: 0 }; map.set(key, c); }
+      return c;
+    };
+    for (const s of data.sales) {
+      const c = get(s.customer);
+      if (!c) continue;
+      const calc = saleCalc(s);
+      c.sales.push({ sale: s, calc });
+      c.boughtC += cents(calc.total);
+      c.debtC += cents(calc.debt);
+    }
+    for (const p of data.payments) {
+      const c = get(p.customer);
+      if (!c) continue;
+      c.payments.push(p);
+      c.paidLaterC += cents(p.amount);
+    }
+    const remainingBySale = new Map();
+    for (const c of map.values()) {
+      c.sales.sort((a, b) => cmpRec(a.sale, b.sale));
+      c.payments.sort(cmpRec);
+      c.name = cleanName(c.sales.length ? c.sales[0].sale.customer : c.payments[0].customer);
+      let pool = c.paidLaterC;
+      c.unpaid = [];
+      for (const { sale, calc } of c.sales) {
+        const d = cents(calc.debt);
+        if (d <= 0) continue;
+        const applied = Math.min(d, Math.max(pool, 0));
+        pool -= applied;
+        if (d - applied > 0) {
+          c.unpaid.push({ sale, calc, remaining: (d - applied) / 100 });
+          remainingBySale.set(sale.id, (d - applied) / 100);
+        }
+      }
+      c.balance = (c.debtC - c.paidLaterC) / 100;
+      c.oldestDate = c.unpaid.length ? c.unpaid[0].sale.date : null;
+    }
+    return { customers: map, remainingBySale };
+  }
+  function debtors(data, today, L) {
+    L = L || buildLedgers(data);
+    const list = [];
+    for (const c of L.customers.values()) {
+      if (!(c.balance > 0)) continue;
+      const days = daysBetween(c.oldestDate, today);
+      list.push(Object.assign({}, c, { days, overdue: days > OVERDUE_DAYS }));
+    }
+    return list.sort((a, b) => b.days - a.days || b.balance - a.balance);
+  }
+  function customerHistory(c) {
+    const ev = [];
+    for (const { sale, calc } of c.sales) ev.push({ type: 'sale', date: sale.date, createdAt: sale.createdAt, sale, calc, delta: cents(calc.debt) });
+    for (const p of c.payments) ev.push({ type: 'pay', date: p.date, createdAt: p.createdAt, pay: p, delta: -cents(p.amount) });
+    ev.sort(cmpRec);
+    let bal = 0;
+    for (const e of ev) { bal += e.delta; e.balance = bal / 100; }
+    return ev;
+  }
+  function reminderText(c) {
+    const agg = new Map();
+    for (const u of c.unpaid) {
+      for (const it of u.sale.items) {
+        const k = it.productId || custKey(it.name);
+        const a = agg.get(k) || { name: it.name, unit: it.unit, qty: 0 };
+        a.qty = round3(a.qty + num(it.qty));
+        agg.set(k, a);
+      }
+    }
+    const list = [...agg.values()].map(a => a.name + ' (' + fmtQty(a.qty) + ' ' + (UNIT_SHORT[a.unit] || a.unit) + ')').join(', ');
+    return 'Sveiki, primenu apie skolą ' + fmtMoney(Math.max(c.balance, 0)) + ' už ' + (list || 'prekes') + '. Ačiū!';
+  }
+
+  /* ---- Ataskaitos ---- */
+  function report(data, from, to, L) {
+    L = L || buildLedgers(data);
+    let count = 0, gross = 0, disc = 0, rev = 0, cost = 0, paidAtSale = 0, debtCreated = 0, leftInDebt = 0, repaid = 0;
+    const byMethod = { grynais: 0, kortele: 0, pavedimu: 0 };
+    const qtyByUnit = {};
+    const prods = new Map();
+    for (const s of data.sales) {
+      if (s.date < from || s.date > to) continue;
+      const c = saleCalc(s);
+      count++;
+      gross += cents(c.gross); disc += cents(c.disc); rev += cents(c.total); cost += cents(c.cost);
+      paidAtSale += cents(c.paid); debtCreated += cents(c.debt);
+      leftInDebt += cents(L.remainingBySale.get(s.id) || 0);
+      if (MONEY.includes(s.method)) byMethod[s.method] += cents(c.total);
+      else if (s.method === 'dalinis') byMethod[MONEY.includes(s.paidMethod) ? s.paidMethod : 'grynais'] += cents(c.paid);
+      const lines = saleLines(s.items).lines;
+      for (let i = 0; i < s.items.length; i++) {
+        const it = s.items[i], l = lines[i];
+        const u = UNITS.includes(it.unit) ? it.unit : 'vnt.';
+        qtyByUnit[u] = round3((qtyByUnit[u] || 0) + l.qty);
+        const key = it.productId ? 'id:' + it.productId : 'n:' + custKey(it.name);
+        let p = prods.get(key);
+        if (!p) { p = { productId: it.productId || null, name: it.name, unit: u, qty: 0, revC: 0, profitC: 0 }; prods.set(key, p); }
+        p.qty = round3(p.qty + l.qty); p.revC += cents(l.total); p.profitC += cents(l.profit);
+      }
+    }
+    for (const p of data.payments) {
+      if (p.date < from || p.date > to) continue;
+      const a = cents(p.amount);
+      repaid += a;
+      byMethod[MONEY.includes(p.method) ? p.method : 'grynais'] += a;
+    }
+    const products = [...prods.values()].map(p => ({ productId: p.productId, name: p.name, unit: p.unit, qty: p.qty, revenue: p.revC / 100, profit: p.profitC / 100 }));
+    return {
+      from, to, count,
+      gross: gross / 100, discount: disc / 100, revenue: rev / 100, cost: cost / 100, profit: (rev - cost) / 100,
+      paidAtSale: paidAtSale / 100, repaid: repaid / 100, received: (paidAtSale + repaid) / 100,
+      debtCreated: debtCreated / 100, leftInDebt: leftInDebt / 100,
+      byMethod: { grynais: byMethod.grynais / 100, kortele: byMethod.kortele / 100, pavedimu: byMethod.pavedimu / 100 },
+      qtyByUnit,
+      topByQty: products.slice().sort((a, b) => b.qty - a.qty || b.revenue - a.revenue),
+      topByProfit: products.slice().sort((a, b) => b.profit - a.profit || b.qty - a.qty),
+    };
+  }
+  // Pardavimai pagal dienas; ilgesniam nei 62 d. laikotarpiui — pagal mėnesius
+  function salesSeries(data, from, to) {
+    const monthly = daysBetween(from, to) + 1 > 62;
+    const buckets = new Map(), out = [];
+    if (!monthly) {
+      for (let d = from; d <= to; d = addDays(d, 1)) {
+        const b = { key: d, label: String(+d.slice(8)), sub: WD_SHORT[weekday(d)], valueC: 0, count: 0 };
+        buckets.set(d, b); out.push(b);
+      }
+    } else {
+      let y = +from.slice(0, 4), m = +from.slice(5, 7);
+      const ey = +to.slice(0, 4), em = +to.slice(5, 7);
+      while (y < ey || (y === ey && m <= em)) {
+        const k = y + '-' + pad(m);
+        const b = { key: k, label: MONTHS_SHORT[m - 1], sub: String(y), valueC: 0, count: 0 };
+        buckets.set(k, b); out.push(b);
+        if (++m > 12) { m = 1; y++; }
+      }
+    }
+    for (const s of data.sales) {
+      if (s.date < from || s.date > to) continue;
+      const b = buckets.get(monthly ? s.date.slice(0, 7) : s.date);
+      if (b) { b.valueC += cents(saleCalc(s).total); b.count++; }
+    }
+    return { monthly, points: out.map(b => ({ key: b.key, label: b.label, sub: b.sub, value: b.valueC / 100, count: b.count })) };
+  }
+
+  /* ---- CSV (kabliataškis ir kablelis — taip atsidaro lietuviškame Excel) ---- */
+  function csvCell(v) {
+    if (v == null) return '';
+    if (typeof v === 'number') return String(v);
+    let s = String(v);
+    if (/^[=+@\t\r]/.test(s)) s = "'" + s;
+    return /[;"\r\n]/.test(s) || /^\s|\s$/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+  const toCsv = rows => '﻿' + rows.map(r => r.map(csvCell).join(';')).join('\r\n') + '\r\n';
+  function salesCsv(data) {
+    const L = buildLedgers(data);
+    const rows = [['Nr.', 'Data', 'Pirkėjas', 'Apmokėjimas', 'Prekė', 'Matas', 'Kiekis', 'Kaina €', 'Nuolaida €', 'Suma €', 'Savikaina €', 'Pelnas €', 'Pardavimo suma €', 'Sumokėta iš karto €', 'Neapmokėta dabar €']];
+    for (const s of data.sales.slice().sort(cmpRec)) {
+      const c = saleCalc(s);
+      s.items.forEach((it, i) => {
+        const l = lineCalc(it);
+        rows.push([s.no, s.date, s.customer, methodText(s), it.name, UNIT_SHORT[it.unit] || it.unit, fmtQty(l.qty), fmtAmount(l.price), fmtAmount(l.disc), fmtAmount(l.total), fmtAmount(l.costTotal), fmtAmount(l.profit),
+          i === 0 ? fmtAmount(c.total) : '', i === 0 ? fmtAmount(c.paid) : '', i === 0 ? fmtAmount(L.remainingBySale.get(s.id) || 0) : '']);
+      });
+    }
+    return toCsv(rows);
+  }
+  function debtsCsv(data, today) {
+    const rows = [['Pirkėjas', 'Skola €', 'Seniausia neapmokėta', 'Dienų', 'Ilgiau nei 14 d.', 'Iš viso pirkta skolon €', 'Iš viso grąžinta €']];
+    for (const d of debtors(data, today)) rows.push([d.name, fmtAmount(d.balance), d.oldestDate, d.days, d.overdue ? 'taip' : 'ne', fmtAmount(d.debtC / 100), fmtAmount(d.paidLaterC / 100)]);
+    return toCsv(rows);
+  }
+  function paymentsCsv(data) {
+    const rows = [['Data', 'Pirkėjas', 'Suma €', 'Būdas', 'Pastaba']];
+    for (const p of data.payments.slice().sort(cmpRec)) rows.push([p.date, p.customer, fmtAmount(p.amount), METHOD_LABEL[p.method], p.note || '']);
+    return toCsv(rows);
+  }
+
+  /* ---- Duomenų tikrinimas (naudojamas ir įkeliant atsarginę kopiją) ---- */
+  function normalize(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('failas nėra šios programėlės atsarginė kopija');
+    if (!Array.isArray(raw.products) || !Array.isArray(raw.sales)) throw new Error('faile nerasta prekių ir pardavimų sąrašų');
+    const out = { app: APP_ID, version: 1, products: [], sales: [], payments: [], nextNo: 1, meta: {} };
+    if (raw.meta && isDate(raw.meta.lastBackup)) out.meta.lastBackup = raw.meta.lastBackup;
+    const ids = new Set();
+    const id = v => { let s = typeof v === 'string' && v ? v.slice(0, 40) : uid(); while (ids.has(s)) s = uid(); ids.add(s); return s; };
+    const ts = v => (Number.isFinite(+v) ? +v : 0);
+    const pos = v => Math.max(0, num(v));
+    for (const p of raw.products) {
+      if (!p || !cleanName(p.name)) continue;
+      const rec = { id: id(p.id), name: cleanName(p.name), unit: UNITS.includes(p.unit) ? p.unit : 'vnt.', cost: round2(pos(p.cost)), price: round2(pos(p.price)), createdAt: ts(p.createdAt) };
+      if (p.sample) rec.sample = true;
+      out.products.push(rec);
+    }
+    let maxNo = 0;
+    for (const s of raw.sales) {
+      if (!s || !isDate(s.date) || !Array.isArray(s.items)) continue;
+      const items = [];
+      for (const it of s.items) {
+        if (!it || !cleanName(it.name)) continue;
+        const qty = round3(num(it.qty));
+        if (qty <= 0) continue;
+        items.push({ productId: typeof it.productId === 'string' ? it.productId : null, name: cleanName(it.name), unit: UNITS.includes(it.unit) ? it.unit : 'vnt.', qty, price: round2(pos(it.price)), cost: round2(pos(it.cost)), discType: it.discType === 'pct' ? 'pct' : 'eur', discValue: pos(it.discValue) });
+      }
+      if (!items.length) continue;
+      freezeItems(items);
+      const method = METHODS.includes(s.method) ? s.method : 'grynais';
+      const no = Number.isInteger(s.no) && s.no > 0 ? s.no : 0;
+      const rec = { id: id(s.id), no, date: s.date, customer: cleanName(s.customer), items, method, paid: method === 'dalinis' ? round2(pos(s.paid)) : 0, paidMethod: MONEY.includes(s.paidMethod) ? s.paidMethod : 'grynais', createdAt: ts(s.createdAt) };
+      if (s.sample) rec.sample = true;
+      if (s.updatedAt) rec.updatedAt = ts(s.updatedAt);
+      maxNo = Math.max(maxNo, no);
+      out.sales.push(rec);
+    }
+    for (const s of out.sales) if (!s.no) s.no = ++maxNo;
+    for (const p of Array.isArray(raw.payments) ? raw.payments : []) {
+      if (!p || !isDate(p.date) || !cleanName(p.customer)) continue;
+      const amount = round2(num(p.amount));
+      if (amount <= 0) continue;
+      const rec = { id: id(p.id), date: p.date, customer: cleanName(p.customer), amount, method: MONEY.includes(p.method) ? p.method : 'grynais', note: String(p.note || '').slice(0, 200), createdAt: ts(p.createdAt) };
+      if (p.sample) rec.sample = true;
+      out.payments.push(rec);
+    }
+    out.nextNo = Math.max(maxNo + 1, Number.isInteger(raw.nextNo) ? raw.nextNo : 1);
+    return out;
+  }
+
+  /* ---- Pavyzdiniai duomenys: 3 prekės, 5 pardavimai, 2 skolininkai ---- */
+  function sampleData(today) {
+    const t = Date.now();
+    const P = (name, unit, cost, price) => ({ id: 'demo-' + uid(), name, unit, cost, price, createdAt: t, sample: true });
+    const products = [P('Cepelinai', 'porcija', 2.1, 5.5), P('Kibinai', 'vnt.', 0.85, 2.2), P('Naminis sūris', 'kg', 6.4, 11)];
+    const [cep, kib, sur] = products;
+    const it = (p, qty, discType, discValue) => ({ productId: p.id, name: p.name, unit: p.unit, qty, price: p.price, cost: p.cost, discType: discType || 'eur', discValue: discValue || 0 });
+    let n = 0;
+    const sale = (ago, customer, items, method, paid, paidMethod) => ({ id: 'demo-' + uid() + (++n), no: n, date: addDays(today, -ago), customer, items, method, paid: paid || 0, paidMethod: paidMethod || 'grynais', createdAt: t - ago * DAY_MS + n, sample: true });
+    const sales = [
+      sale(20, 'Jonas', [it(cep, 2), it(sur, 0.5)], 'skola'),
+      sale(9, 'Ona', [it(kib, 4)], 'dalinis', 5, 'grynais'),
+      sale(6, 'Petras', [it(cep, 3, 'pct', 10)], 'kortele'),
+      sale(1, '', [it(kib, 5, 'eur', 1), it(sur, 1)], 'grynais'),
+      sale(0, 'Jonas', [it(kib, 2)], 'pavedimu'),
+    ];
+    const payments = [{ id: 'demo-' + uid(), date: addDays(today, -4), customer: 'Jonas', amount: 6.5, method: 'grynais', note: 'Dalis skolos', createdAt: t - 4 * DAY_MS, sample: true }];
+    return normalize({ products, sales, payments });
+  }
+
+  /* ---- Testai: runTests() naršyklės konsolėje. Naudoja tik savo bandomuosius duomenis. ---- */
+  function runTests(out) {
+    out = out || console;
+    const res = [];
+    const eq = (name, got, exp) => res.push({ name, ok: JSON.stringify(got) === JSON.stringify(exp), got, exp });
+    const pick = (o, keys) => keys.reduce((a, k) => { a[k] = o[k]; return a; }, {});
+    const T = '2026-03-20'; // penktadienis
+    const it = (p, qty, price, cost, discType, discValue) => ({ productId: p[0], name: p[1], unit: p[2], qty, price, cost, discType: discType || 'eur', discValue: discValue || 0 });
+    const CEP = ['t1', 'Cepelinai', 'porcija'], KIB = ['t2', 'Kibinai', 'vnt.'], SUR = ['t3', 'Naminis sūris', 'kg'];
+
+    eq('Eilutė: 3 × 5,50 € − 10 %', pick(lineCalc(it(CEP, 3, 5.5, 2.1, 'pct', 10)), ['gross', 'disc', 'total', 'costTotal', 'profit']), { gross: 16.5, disc: 1.65, total: 14.85, costTotal: 6.3, profit: 8.55 });
+    eq('Eilutė: 5 × 2,20 € − 1,00 €', pick(lineCalc(it(KIB, 5, 2.2, 0.85, 'eur', 1)), ['gross', 'disc', 'total', 'costTotal', 'profit']), { gross: 11, disc: 1, total: 10, costTotal: 4.25, profit: 5.75 });
+    eq('Eilutė: 0,75 kg × 11,00 €', pick(lineCalc(it(SUR, 0.75, 11, 6.4)), ['total', 'costTotal', 'profit']), { total: 8.25, costTotal: 4.8, profit: 3.45 });
+    eq('Nuolaida neviršija sumos', pick(lineCalc(it(KIB, 1, 2, 1, 'eur', 5)), ['disc', 'total']), { disc: 2, total: 0 });
+    eq('Apvalinimas be kablelio klaidų', [round2(1.005), round2(2.675), round2(-1.005), cents(0.1 + 0.2), saleCalc({ method: 'grynais', items: [it(KIB, 1, 0.1, 0), it(KIB, 1, 0.2, 0)] }).total, lineCalc(it(KIB, 3, 0.1, 0)).total], [1.01, 2.68, -1.01, 30, 0.3, 0.3]);
+    eq('Skaičių įvedimas su kableliu', [parseNum('5,50'), parseNum('1 234,5'), parseNum('abc'), parseNum('')], [5.5, 1234.5, null, null]);
+    eq('Pinigų formatas', [fmtMoney(1234.5), fmtMoney(-2), fmtQty(0.5)], ['1 234,50 €', '−2,00 €', '0,5']);
+    eq('Marža € ir %', (m => [m.eur, Math.round(m.pct * 10) / 10])(margin(2.1, 5.5)), [3.4, 61.8]);
+
+    eq('Dalinis: 10,00 €, sumokėta 4,00 €', pick(saleCalc({ method: 'dalinis', paid: 4, items: [it(KIB, 5, 2.2, 0.85, 'eur', 1)] }), ['total', 'paid', 'debt']), { total: 10, paid: 4, debt: 6 });
+    eq('Dalinis: sumokėta daugiau nei suma', pick(saleCalc({ method: 'dalinis', paid: 50, items: [it(KIB, 5, 2.2, 0.85, 'eur', 1)] }), ['paid', 'debt']), { paid: 10, debt: 0 });
+    eq('Skola: visa suma skolon', pick(saleCalc({ method: 'skola', items: [it(CEP, 2, 5.5, 2.1)] }), ['paid', 'debt']), { paid: 0, debt: 11 });
+    eq('Kortele: skolos nėra', pick(saleCalc({ method: 'kortele', items: [it(CEP, 2, 5.5, 2.1)] }), ['paid', 'debt']), { paid: 11, debt: 0 });
+
+    const base = {
+      products: [],
+      sales: [
+        { id: 's1', no: 1, date: '2026-03-01', customer: 'Jonas', method: 'skola', items: [it(CEP, 2, 5.5, 2.1), it(SUR, 0.5, 11, 6.4)], createdAt: 1 },
+        { id: 's2', no: 2, date: '2026-03-10', customer: ' jonas ', method: 'dalinis', paid: 4, paidMethod: 'kortele', items: [it(KIB, 5, 2.2, 0.85, 'eur', 1)], createdAt: 2 },
+        { id: 's3', no: 3, date: '2026-03-15', customer: '', method: 'grynais', items: [it(CEP, 3, 5.5, 2.1, 'pct', 10)], createdAt: 3 },
+        { id: 's4', no: 4, date: '2026-03-18', customer: 'Ona', method: 'skola', items: [it(KIB, 2, 2.2, 0.85)], createdAt: 4 },
+        { id: 's5', no: 5, date: '2026-02-27', customer: 'Petras', method: 'pavedimu', items: [it(SUR, 1, 11, 6.4)], createdAt: 5 },
+      ],
+      payments: [
+        { id: 'm1', date: '2026-03-12', customer: 'JONAS', amount: 20, method: 'grynais', createdAt: 6 },
+        { id: 'm2', date: '2026-03-19', customer: 'Ona', amount: 1.4, method: 'pavedimu', createdAt: 7 },
+      ],
+    };
+    const data = normalize(base);
+    const L = buildLedgers(data);
+    const jonas = L.customers.get('jonas');
+    eq('Pirkėjas sujungiamas: Jonas / „ jonas “ / JONAS', [L.customers.size, jonas.name, jonas.sales.length, jonas.payments.length], [3, 'Jonas', 2, 1]);
+    eq('Jono skola po 20 € apmokėjimo (dengiama seniausia)', [jonas.balance, jonas.oldestDate, jonas.unpaid.map(u => [u.sale.id, u.remaining])], [2.5, '2026-03-10', [['s2', 2.5]]]);
+    eq('Istorijos likutis po kiekvieno įrašo', customerHistory(jonas).map(e => e.balance), [16.5, 22.5, 2.5]);
+    eq('Skolininkų sąrašas', debtors(data, T, L).map(d => [d.name, d.balance, d.oldestDate, d.days, d.overdue]), [['Jonas', 2.5, '2026-03-10', 10, false], ['Ona', 3, '2026-03-18', 2, false]]);
+    eq('Be apmokėjimų: seniausia skola ir vėlavimas', debtors(normalize(Object.assign({}, base, { payments: [] })), T).map(d => [d.name, d.balance, d.days, d.overdue]), [['Jonas', 22.5, 19, true], ['Ona', 4.4, 2, false]]);
+    const edge = normalize({ products: [], payments: [], sales: [
+      { date: addDays(T, -14), customer: 'A', method: 'skola', items: [it(KIB, 1, 2, 1)] },
+      { date: addDays(T, -15), customer: 'B', method: 'skola', items: [it(KIB, 1, 2, 1)] },
+    ] });
+    eq('Raudona tik skola, senesnė nei 14 d.', debtors(edge, T).map(d => [d.name, d.days, d.overdue]), [['B', 15, true], ['A', 14, false]]);
+    const paidUp = normalize(Object.assign({}, base, { payments: base.payments.concat([
+      { date: T, customer: 'Jonas', amount: 2.5, method: 'grynais' },
+      { date: T, customer: 'Ona', amount: 10, method: 'grynais' },
+    ]) }));
+    const L2 = buildLedgers(paidUp);
+    eq('Visa skola grąžinta / permoka', [L2.customers.get('jonas').balance, L2.customers.get('ona').balance, debtors(paidUp, T, L2).length], [0, -7, 0]);
+
+    const r = report(data, '2026-03-01', '2026-03-31', L);
+    eq('Mėnuo: apyvarta, savikaina, pelnas', pick(r, ['count', 'revenue', 'cost', 'profit', 'discount']), { count: 4, revenue: 45.75, cost: 19.65, profit: 26.1, discount: 2.65 });
+    eq('Mėnuo: gauta pinigų ir liko skolose', pick(r, ['paidAtSale', 'repaid', 'received', 'debtCreated', 'leftInDebt']), { paidAtSale: 18.85, repaid: 21.4, received: 40.25, debtCreated: 26.9, leftInDebt: 5.5 });
+    eq('Mėnuo: gauta pagal būdą', r.byMethod, { grynais: 34.85, kortele: 4, pavedimu: 1.4 });
+    eq('Mėnuo: parduotas kiekis', r.qtyByUnit, { porcija: 5, kg: 0.5, 'vnt.': 7 });
+    eq('Populiariausios pagal kiekį', r.topByQty.map(p => [p.name, p.qty]), [['Kibinai', 7], ['Cepelinai', 5], ['Naminis sūris', 0.5]]);
+    eq('Populiariausios pagal pelną', r.topByProfit.map(p => [p.name, p.profit]), [['Cepelinai', 15.35], ['Kibinai', 8.45], ['Naminis sūris', 2.3]]);
+    eq('Vasaris', pick(report(data, '2026-02-01', '2026-02-28'), ['count', 'revenue', 'profit', 'received', 'leftInDebt']), { count: 1, revenue: 11, profit: 4.6, received: 11, leftInDebt: 0 });
+    const wk = periodRange('week', T);
+    eq('Laikotarpiai: savaitė nuo pirmadienio, mėnuo', [wk, periodRange('month', T), periodRange('month', '2028-02-10').to, periodRange('today', T)], [{ from: '2026-03-16', to: '2026-03-22' }, { from: '2026-03-01', to: '2026-03-31' }, '2028-02-29', { from: T, to: T }]);
+    eq('Savaitė', pick(report(data, wk.from, wk.to, L), ['count', 'revenue', 'received', 'leftInDebt']), { count: 1, revenue: 4.4, received: 1.4, leftInDebt: 3 });
+    eq('Priminimo žinutė', reminderText(jonas), 'Sveiki, primenu apie skolą 2,50 € už Kibinai (5 vnt.). Ačiū!');
+    eq('Skolų suma = skolon parduota − grąžinta', debtors(data, T, L).reduce((a, d) => a + cents(d.balance), 0) / 100, 5.5);
+    eq('CSV langeliai', [csvCell('Jonas; "Kaimynas"'), csvCell('=1+1'), csvCell('Ona')], ['"Jonas; ""Kaimynas"""', "'=1+1", 'Ona']);
+    eq('CSV pardavimų eilutės (antraštė + 6 prekės)', salesCsv(data).trim().split('\r\n').length, 7);
+    eq('Kopija: eksportas → importas nieko nekeičia', JSON.stringify(normalize(JSON.parse(JSON.stringify(data)))) === JSON.stringify(data), true);
+    eq('Pavyzdžiai: 3 prekės, 5 pardavimai, 2 skolininkai', (d => [d.products.length, d.sales.length, debtors(d, T).map(x => [x.name, x.balance, x.overdue])])(sampleData(T)), [3, 5, [['Jonas', 10, true], ['Ona', 3.8, false]]]);
+
+    const failed = res.filter(x => !x.ok);
+    if (out.table) out.table(res.map(x => ({ ' ': x.ok ? '✔' : '✘', testas: x.name, gauta: JSON.stringify(x.got), 'tikėtasi': JSON.stringify(x.exp) })));
+    (failed.length ? out.error : out.log).call(out, 'Testai: ' + (res.length - failed.length) + ' iš ' + res.length + ' sėkmingi' + (failed.length ? '. Nepavyko: ' + failed.map(x => x.name).join('; ') : '.'));
+    return { total: res.length, passed: res.length - failed.length, failed: failed.length, results: res };
+  }
+
+  return {
+    APP_ID, UNITS, UNIT_SHORT, METHODS, MONEY, METHOD_LABEL, OVERDUE_DAYS, WEEKDAYS,
+    parseNum, num, cents, round2, round3, fmtAmount, fmtMoney, fmtQty, fmtPct,
+    localToday, isDate, addDays, daysBetween, weekday, periodRange,
+    cleanName, custKey, uid, cmpRec,
+    lineCalc, saleCalc, margin, methodText, freezeItems,
+    buildLedgers, debtors, customerHistory, reminderText, report, salesSeries,
+    salesCsv, debtsCsv, paymentsCsv, normalize, sampleData, runTests,
+  };
+})();
+
+function runTests() { return Core.runTests(console); }
+</script>
+
+<!-- Sąsaja -->
+<script>
+(function () {
+  'use strict';
+  const C = Core;
+  const KEY = 'maisto-apskaita:duomenys';
+  const DRAFT_KEY = 'maisto-apskaita:juodrastis';
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  const M = C.fmtMoney, Q = C.fmtQty, A2 = x => C.fmtAmount(x);
+  const U = u => C.UNIT_SHORT[u] || u;
+  const today = () => C.localToday();
+  const plural = (n, one, few, many) => (n % 10 === 1 && n % 100 !== 11 ? one : n % 10 >= 2 && (n % 100 < 10 || n % 100 >= 20) ? few : many);
+
+  /* ---------- Saugykla ---------- */
+  let storageOK = true, loadProblem = '';
+  try { localStorage.setItem('maisto-apskaita:bandymas', '1'); localStorage.removeItem('maisto-apskaita:bandymas'); } catch (e) { storageOK = false; }
+  function sGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function sSet(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } }
+
+  let S;
+  function save() {
+    if (sSet(KEY, JSON.stringify(S))) return true;
+    storageOK = false;
+    renderBanners();
+    toast('Nepavyko išsaugoti duomenų! Atsisiųskite atsarginę kopiją.', true);
+    return false;
+  }
+  (function load() {
+    const raw = sGet(KEY);
+    if (raw) {
+      try { S = C.normalize(JSON.parse(raw)); return; } catch (e) {
+        sSet(KEY + ':sugadinta-' + Date.now(), raw);
+        loadProblem = 'Išsaugoti duomenys buvo sugadinti, todėl pradėta tuščiai. Jei turite atsarginę kopiją, atkurkite ją skiltyje „Duomenys“.';
+        S = C.normalize({ products: [], sales: [], payments: [] });
+        return;
+      }
+    }
+    S = C.sampleData(today());
+    if (storageOK) save();
+  })();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+
+  /* ---------- Būsena ---------- */
+  const freshSale = () => ({ editId: null, no: 0, date: today(), dateAuto: true, customer: '', items: [], method: 'grynais', paid: '', paidMethod: 'grynais' });
+  const ui = {
+    tab: 'parduoti', dataView: false, cust: null, stash: null, prodFilter: '',
+    sale: freshSale(),
+    list: { range: '30', from: '', to: '', customer: '', method: '', limit: 50 },
+    rep: { period: 'today', from: '', to: '' },
+    payDraft: null, prodDraft: null,
+  };
+  try {
+    const d = JSON.parse(sGet(DRAFT_KEY) || 'null');
+    if (d && Array.isArray(d.items)) {
+      ui.sale = Object.assign(freshSale(), d, { editId: null });
+      if (!ui.sale.items.length || !C.isDate(ui.sale.date) || ui.sale.dateAuto) { ui.sale.date = today(); ui.sale.dateAuto = true; }
+    }
+  } catch (e) { /* juodraštis nesvarbus */ }
+  function saveDraft() { const s = ui.sale.editId ? ui.stash : ui.sale; sSet(DRAFT_KEY, JSON.stringify(s || freshSale())); }
+
+  let L = C.buildLedgers(S);
+  const canonicalName = name => { const c = L.customers.get(C.custKey(name)); return c ? c.name : C.cleanName(name); };
+  const countSample = () => S.products.filter(x => x.sample).length + S.sales.filter(x => x.sample).length + S.payments.filter(x => x.sample).length;
+  const byName = (a, b) => a.name.localeCompare(b.name, 'lt');
+
+  /* ---------- Piešimas ---------- */
+  const TITLES = { parduoti: 'Naujas pardavimas', pardavimai: 'Pardavimai', skolos: 'Skolos', ataskaitos: 'Ataskaitos', prekes: 'Prekės', duomenys: 'Duomenys' };
+  const VIEWS = { parduoti: viewSell, pardavimai: viewList, skolos: viewDebts, ataskaitos: viewReports, prekes: viewProducts, duomenys: viewData };
+  function render() {
+    L = C.buildLedgers(S);
+    const v = ui.dataView ? 'duomenys' : ui.tab;
+    $('#title').textContent = v === 'parduoti' && ui.sale.editId ? 'Pardavimo Nr. ' + ui.sale.no + ' taisymas' : TITLES[v];
+    $('#btn-data').setAttribute('aria-pressed', String(ui.dataView));
+    renderBanners();
+    $('#view').innerHTML = VIEWS[v]();
+    document.querySelectorAll('nav.tabs [data-tab]').forEach(b => {
+      if (!ui.dataView && b.dataset.tab === ui.tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    const d = C.debtors(S, today(), L), badge = $('#badge-skolos');
+    badge.hidden = !d.length;
+    badge.textContent = d.length;
+    badge.classList.toggle('hot', d.some(x => x.overdue));
+    $('#dl-cust').innerHTML = [...L.customers.values()].sort(byName).map(c => `<option value="${esc(c.name)}"></option>`).join('');
+  }
+  function go(tab) { ui.tab = tab; ui.dataView = false; ui.cust = null; render(); window.scrollTo(0, 0); }
+  function renderBanners() {
+    const b = [];
+    if (!storageOK) b.push('<div class="banner err"><span>Ši naršyklė neleidžia išsaugoti duomenų — uždarius puslapį jie dings. Atidarykite failą kita naršykle (pvz., Chrome) ir ne privačiame lange.</span></div>');
+    if (loadProblem) b.push(`<div class="banner err"><span>${esc(loadProblem)}</span></div>`);
+    if (countSample()) {
+      b.push('<div class="banner"><span>Dabar matote <b>pavyzdinius duomenis</b> — išbandykite, o tada išvalykite.</span><button type="button" class="btn sm" data-a="sample-clear">Išvalyti pavyzdžius</button></div>');
+    } else if (ui.tab === 'parduoti' && !ui.dataView && S.sales.length >= 10) {
+      const lb = S.meta.lastBackup, days = lb ? C.daysBetween(lb, today()) : null;
+      if (days == null || days >= 7) b.push(`<div class="banner"><span>${lb ? `Atsarginė kopija daryta prieš ${days} d.` : 'Atsarginė kopija dar nedaryta.'} Duomenys laikomi tik šiame telefone.</span><button type="button" class="btn sm" data-a="exp-json">Atsisiųsti kopiją</button></div>`);
+    }
+    $('#banners').innerHTML = b.join('');
+  }
+
+  /* ---------- Parduoti ---------- */
+  function viewSell() {
+    const s = ui.sale;
+    let top;
+    if (s.editId) {
+      top = `<div class="banner"><span>Taisote pardavimą Nr.&nbsp;${s.no}. Pakeitimai įsigalios paspaudus „Išsaugoti pakeitimus“.</span><button type="button" class="btn sm" data-a="edit-cancel">Atšaukti</button></div>`;
+    } else {
+      const r = C.report(S, today(), today(), L);
+      top = `<div class="todayline"><span>Šiandien: <b>${r.count}</b> pard.</span><span><b>${M(r.revenue)}</b></span>${r.debtCreated > 0 ? `<span class="red">skolon ${M(r.debtCreated)}</span>` : ''}</div>`;
+    }
+    const recent = recentCustomers(8);
+    return top + `
+    <section class="card">
+      <div class="row2">
+        <div><label class="f" for="s-date">Data</label><input type="date" id="s-date" data-f="s-date" value="${esc(s.date)}"></div>
+        <div><label class="f" for="s-cust">Pirkėjas</label><input id="s-cust" data-f="s-cust" list="dl-cust" autocomplete="off" autocapitalize="words" enterkeyhint="done" placeholder="neprivaloma" value="${esc(s.customer)}"></div>
+      </div>
+      ${recent.length ? `<div class="chips scrollx mt" id="cust-chips" aria-label="Paskutiniai pirkėjai">${recent.map(n => `<button type="button" class="chip" data-a="cust-pick" data-name="${esc(n)}" aria-pressed="${C.custKey(n) === C.custKey(s.customer)}">${esc(n)}</button>`).join('')}</div>` : ''}
+      <div id="cust-hint">${custHintHtml()}</div>
+    </section>
+    <section class="card">
+      <h2>Prekės</h2>
+      ${S.products.length > 6 ? `<input type="search" class="mb" data-f="prod-filter" placeholder="Ieškoti prekės…" aria-label="Ieškoti prekės" value="${esc(ui.prodFilter)}">` : ''}
+      <div id="tiles">${tilesHtml()}</div>
+    </section>
+    <section class="card" id="cart">${cartHtml()}</section>
+    <section class="card" id="pay-sec">${paySecHtml()}</section>
+    <div class="savebar" id="savebar">${saveBarHtml()}</div>`;
+  }
+  function recentCustomers(n) {
+    const out = [], seen = new Set();
+    for (const s of S.sales.slice().sort((a, b) => C.cmpRec(b, a))) {
+      const k = C.custKey(s.customer);
+      if (!k || seen.has(k)) continue;
+      seen.add(k);
+      out.push(L.customers.get(k).name);
+      if (out.length >= n) break;
+    }
+    return out;
+  }
+  function custHintHtml() {
+    const k = C.custKey(ui.sale.customer);
+    if (!k) return '';
+    const c = L.customers.get(k);
+    if (!c) return '<p class="hint muted">Naujas pirkėjas</p>';
+    if (c.balance > 0) {
+      const d = C.daysBetween(c.oldestDate, today());
+      return `<p class="hint ${d > C.OVERDUE_DAYS ? 'red' : 'warn'}">Šio pirkėjo skola: ${M(c.balance)} (nuo ${c.oldestDate}, ${d} d.)</p>`;
+    }
+    if (c.balance < 0) return `<p class="hint ok">Šio pirkėjo permoka: ${M(-c.balance)}</p>`;
+    return '';
+  }
+  function tilesHtml() {
+    if (!S.products.length) return '<p class="muted">Prekių dar nėra.</p><button type="button" class="btn pri" data-a="tab" data-tab="prekes">+ Pridėti prekę</button>';
+    const q = C.custKey(ui.prodFilter);
+    const list = S.products.filter(p => !q || C.custKey(p.name).includes(q)).sort(byName);
+    if (!list.length) return '<p class="muted">Tokios prekės nėra.</p>';
+    const inCart = {};
+    for (const it of ui.sale.items) if (it.productId) inCart[it.productId] = C.round3((inCart[it.productId] || 0) + C.num(it.qty));
+    return '<div class="tiles">' + list.map(p => `<button type="button" class="tile" data-a="add" data-id="${esc(p.id)}"><b>${esc(p.name)}</b><span class="pr">${M(p.price)} / ${U(p.unit)}</span>${inCart[p.id] ? `<span class="cnt">${Q(inCart[p.id])}</span>` : ''}</button>`).join('') + '</div>';
+  }
+  const cartTotals = () => C.saleCalc({ items: ui.sale.items, method: ui.sale.method, paid: C.num(ui.sale.paid) });
+  function cartHtml() {
+    const items = ui.sale.items;
+    if (!items.length) return '<h2>Krepšelis</h2><p class="muted">Paspauskite prekę — ji atsiras čia. Paspaudus dar kartą kiekis padidėja.</p>';
+    return `<div class="cart-h"><h2>Krepšelis <span class="muted">(${items.length})</span></h2><button type="button" class="link dl" data-a="cart-clear">Išvalyti</button></div>`
+      + items.map(lineHtml).join('') + `<div class="cart-sum" id="cart-sum">${cartSumHtml(cartTotals())}</div>`;
+  }
+  function lineHtml(it, i) {
+    const l = C.lineCalc(it), u = U(it.unit);
+    const showDisc = it.showDisc || C.num(it.discValue) > 0;
+    const v = (x, fmt) => (typeof x === 'number' ? fmt(x) : '');
+    return `<div class="cl" data-i="${i}">
+      <div class="cl-h"><b>${esc(it.name)}</b><span class="cl-t" data-out="lt">${M(l.total)}</span><button type="button" class="x" data-a="line-rm" data-i="${i}" aria-label="Išimti ${esc(it.name)}">✕</button></div>
+      <div class="cl-g">
+        <div><label class="f" for="q${i}">Kiekis, ${u}</label><div class="qty"><button type="button" data-a="qty" data-d="-1" data-i="${i}" aria-label="Mažiau">−</button><input id="q${i}" data-f="qty" data-i="${i}" inputmode="decimal" autocomplete="off" value="${v(it.qty, Q)}"><button type="button" data-a="qty" data-d="1" data-i="${i}" aria-label="Daugiau">+</button></div></div>
+        <div><label class="f" for="p${i}">Kaina, € už ${u}</label><input id="p${i}" data-f="price" data-i="${i}" inputmode="decimal" autocomplete="off" value="${v(it.price, A2)}"></div>
+      </div>
+      ${showDisc ? `<div class="cl-g">
+        <div><label class="f" for="d${i}">Nuolaida</label><div class="disc"><input id="d${i}" data-f="disc" data-i="${i}" inputmode="decimal" autocomplete="off" placeholder="0" value="${C.num(it.discValue) ? (it.discType === 'pct' ? Q(it.discValue) : A2(it.discValue)) : ''}"><button type="button" class="chip" data-a="disc-type" data-i="${i}" aria-label="Nuolaidos tipas: ${it.discType === 'pct' ? 'procentai' : 'eurai'}">${it.discType === 'pct' ? '%' : '€'}</button></div></div>
+        <div class="disc-out" data-out="ld">${l.disc > 0 ? '−' + M(l.disc) : ''}</div>
+      </div>` : `<button type="button" class="link" data-a="disc-show" data-i="${i}">+ nuolaida</button>`}
+    </div>`;
+  }
+  function cartSumHtml(t) {
+    return (t.disc > 0 ? `<div><span>Be nuolaidų</span><span>${M(t.gross)}</span></div><div class="warn"><span>Nuolaida</span><span>−${M(t.disc)}</span></div>` : '')
+      + `<div class="strong"><span>Iš viso</span><span>${M(t.total)}</span></div>`;
+  }
+  function paySecHtml() {
+    const s = ui.sale, t = cartTotals();
+    const needCust = (s.method === 'skola' || s.method === 'dalinis') && !C.cleanName(s.customer);
+    let extra = '';
+    if (s.method === 'skola') extra = `<p class="hint red">Visa suma <span data-out="debt">${M(t.total)}</span> bus įrašyta į pirkėjo skolą.</p>`;
+    if (s.method === 'dalinis') {
+      const p = C.parseNum(s.paid);
+      extra = `<div class="row2 mt">
+          <div><label class="f" for="s-paid">Sumokėta dabar, €</label><input id="s-paid" data-f="paid" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${esc(s.paid)}"></div>
+          <div><span class="f">Liks skolos</span><div class="bigv red rest" data-out="rest">${M(Math.max(0, C.round2(t.total - (p > 0 ? p : 0))))}</div></div>
+        </div>
+        <span class="f mt">Kaip sumokėta dalis</span>
+        <div class="chips">${C.MONEY.map(m => `<button type="button" class="chip" data-a="paid-method" data-m="${m}" aria-pressed="${s.paidMethod === m}">${C.METHOD_LABEL[m]}</button>`).join('')}</div>`;
+    }
+    return `<h2>Apmokėjimas</h2>
+      <div class="paygrid">${C.METHODS.map(m => `<button type="button" class="pm m-${m}" data-a="method" data-m="${m}" aria-pressed="${s.method === m}">${C.METHOD_LABEL[m]}</button>`).join('')}</div>
+      ${extra}${needCust ? '<p class="hint red">Skolai reikia nurodyti pirkėją (viršuje).</p>' : ''}`;
+  }
+  function saveBarHtml() {
+    const n = ui.sale.items.length;
+    return `<div class="tot"><small>${n ? 'Iš viso' : 'Krepšelis tuščias'}</small><b data-out="sb">${M(cartTotals().total)}</b></div>
+      <button type="button" class="btn pri" data-a="sale-save"${n ? '' : ' disabled'}>${ui.sale.editId ? 'Išsaugoti pakeitimus' : 'Išsaugoti'}</button>`;
+  }
+  function updateTotals() {
+    const t = cartTotals();
+    const set = (sel, html) => { const el = $(sel); if (el) el.innerHTML = html; };
+    set('#cart-sum', cartSumHtml(t));
+    set('[data-out="sb"]', M(t.total));
+    set('[data-out="debt"]', M(t.total));
+    const p = C.parseNum(ui.sale.paid);
+    set('[data-out="rest"]', M(Math.max(0, C.round2(t.total - (p > 0 ? p : 0)))));
+  }
+  function updateLine(i) {
+    const el = document.querySelector(`.cl[data-i="${i}"]`);
+    if (!el) return;
+    const l = C.lineCalc(ui.sale.items[i]);
+    el.querySelector('[data-out="lt"]').textContent = M(l.total);
+    const d = el.querySelector('[data-out="ld"]');
+    if (d) d.textContent = l.disc > 0 ? '−' + M(l.disc) : '';
+  }
+  function refreshSell() {
+    $('#tiles').innerHTML = tilesHtml();
+    $('#cart').innerHTML = cartHtml();
+    $('#pay-sec').innerHTML = paySecHtml();
+    $('#savebar').innerHTML = saveBarHtml();
+  }
+  function addToCart(id) {
+    const p = S.products.find(x => x.id === id);
+    if (!p) return;
+    const it = ui.sale.items.find(x => x.productId === id);
+    if (it) it.qty = C.round3(C.num(it.qty) + 1);
+    else ui.sale.items.push({ productId: p.id, name: p.name, unit: p.unit, qty: 1, price: p.price, cost: p.cost, discType: 'eur', discValue: 0 });
+    refreshSell();
+    saveDraft();
+    buzz();
+  }
+  function lineInput(t, f) {
+    const i = +t.dataset.i, it = ui.sale.items[i];
+    if (!it) return;
+    const raw = t.value.trim(), v = C.parseNum(raw);
+    let bad;
+    if (f === 'qty') { bad = v == null || v <= 0; it.qty = bad ? null : v; }
+    else if (f === 'price') { bad = v == null || v < 0; it.price = bad ? null : v; }
+    else { bad = raw !== '' && (v == null || v < 0 || (it.discType === 'pct' && v > 100)); it.discValue = bad || raw === '' ? 0 : v; }
+    t.classList.toggle('bad', bad && raw !== '');
+    updateLine(i);
+    updateTotals();
+    if (f === 'qty') $('#tiles').innerHTML = tilesHtml();
+    saveDraft();
+  }
+  function stepQty(i, d) {
+    const it = ui.sale.items[i];
+    if (!it) return;
+    const step = it.unit === 'kg' ? 0.1 : 1;
+    const q = C.round3(C.num(it.qty) + d * step);
+    if (q <= 0) return toast('Mažiau nebegalima. Prekę išimkite mygtuku ✕.');
+    it.qty = q;
+    const inp = document.querySelector(`.cl[data-i="${i}"] [data-f="qty"]`);
+    if (inp) { inp.value = Q(q); inp.classList.remove('bad'); }
+    updateLine(i);
+    updateTotals();
+    $('#tiles').innerHTML = tilesHtml();
+    saveDraft();
+  }
+  async function saveSale() {
+    const s = ui.sale;
+    if (!s.items.length) return toast('Krepšelis tuščias — paspauskite prekę.', true);
+    for (let i = 0; i < s.items.length; i++) {
+      const it = s.items[i];
+      if (!(typeof it.qty === 'number' && it.qty > 0)) return fieldErr(`.cl[data-i="${i}"] [data-f="qty"]`, 'Patikrinkite kiekį: ' + it.name);
+      if (!(typeof it.price === 'number' && it.price >= 0)) return fieldErr(`.cl[data-i="${i}"] [data-f="price"]`, 'Patikrinkite kainą: ' + it.name);
+    }
+    if (s.dateAuto && !s.editId) s.date = today();
+    if (!C.isDate(s.date)) return fieldErr('#s-date', 'Nurodykite datą.');
+    const name = canonicalName(s.customer);
+    if ((s.method === 'skola' || s.method === 'dalinis') && !name) return fieldErr('#s-cust', 'Skolai reikia nurodyti pirkėją.');
+    const t = cartTotals();
+    let paid = 0;
+    if (s.method === 'dalinis') {
+      const p = C.parseNum(s.paid);
+      if (p == null || p <= 0) return fieldErr('#s-paid', 'Įveskite, kiek sumokėta dabar.');
+      if (C.cents(p) >= C.cents(t.total)) return fieldErr('#s-paid', 'Sumokėta visa suma — pasirinkite „Grynais“, „Kortele“ arba „Pavedimu“.');
+      paid = C.round2(p);
+    }
+    if (t.total === 0 && !(await ask('Pardavimo suma 0,00 €. Vis tiek išsaugoti?'))) return;
+    const items = C.freezeItems(s.items.map(it => ({ productId: it.productId || null, name: it.name, unit: it.unit, qty: C.round3(it.qty), price: C.round2(it.price), cost: C.round2(it.cost), discType: it.discType === 'pct' ? 'pct' : 'eur', discValue: Math.max(0, C.num(it.discValue)) })));
+    const fields = { date: s.date, customer: name, items, method: s.method, paid, paidMethod: s.paidMethod };
+    let rec;
+    if (s.editId) {
+      rec = S.sales.find(x => x.id === s.editId);
+      if (!rec) return toast('Šio pardavimo nebėra — galbūt jis ištrintas.', true);
+      Object.assign(rec, fields, { updatedAt: Date.now() });
+    } else {
+      rec = Object.assign({ id: C.uid(), no: S.nextNo++ }, fields, { createdAt: Date.now() });
+      S.sales.push(rec);
+    }
+    if (!save()) return;
+    const wasEdit = !!s.editId;
+    if (wasEdit) { ui.sale = ui.stash || freshSale(); ui.stash = null; }
+    else ui.sale = Object.assign(freshSale(), { date: s.date, dateAuto: s.dateAuto });
+    saveDraft();
+    const c = name ? C.buildLedgers(S).customers.get(C.custKey(name)) : null;
+    let msg = (wasEdit ? 'Pakeitimai išsaugoti' : 'Išsaugota: Nr. ' + rec.no) + ' · ' + M(t.total);
+    if (c && c.balance > 0) msg += ' · ' + c.name + ' skola ' + M(c.balance);
+    if (wasEdit) go('pardavimai'); else { render(); window.scrollTo(0, 0); }
+    toast(msg);
+    buzz();
+  }
+  function editSale(id) {
+    const s = S.sales.find(x => x.id === id);
+    if (!s) return;
+    if (!ui.sale.editId) ui.stash = ui.sale;
+    ui.sale = { editId: s.id, no: s.no, date: s.date, dateAuto: false, customer: s.customer, items: s.items.map(it => Object.assign({}, it)), method: s.method, paid: s.method === 'dalinis' ? A2(s.paid) : '', paidMethod: s.paidMethod || 'grynais' };
+    go('parduoti');
+  }
+  async function deleteSale(id) {
+    const s = S.sales.find(x => x.id === id);
+    if (!s) return;
+    const c = C.saleCalc(s);
+    const ok = await ask(`Ištrinti pardavimą Nr. ${s.no}?\n${s.date} · ${s.customer ? esc(s.customer) : 'be pirkėjo'} · ${M(c.total)}${c.debt > 0 ? '\nKartu dings ir šio pardavimo skola (' + M(c.debt) + ').' : ''}`, { yes: 'Ištrinti', danger: true });
+    if (!ok) return;
+    S.sales = S.sales.filter(x => x.id !== id);
+    save(); render(); toast('Pardavimas ištrintas');
+  }
+
+  /* ---------- Pardavimų sąrašas ---------- */
+  function listRange() {
+    const f = ui.list, t = today();
+    if (f.range === 'today') return { from: t, to: t };
+    if (f.range === '7') return { from: C.addDays(t, -6), to: t };
+    if (f.range === '30') return { from: C.addDays(t, -29), to: t };
+    if (f.range === 'all') return { from: '0000-01-01', to: '9999-12-31' };
+    return C.periodRange('custom', t, f.from, f.to);
+  }
+  function viewList() {
+    const f = ui.list;
+    const ranges = [['today', 'Šiandien'], ['7', '7 d.'], ['30', '30 d.'], ['all', 'Visi'], ['custom', 'Pasirinkti']];
+    const methods = [['', 'Visi'], ...C.METHODS.map(m => [m, C.METHOD_LABEL[m]]), ['likutis', 'Neapmokėti']];
+    return `<section class="card">
+      <div class="chips">${ranges.map(([k, l]) => `<button type="button" class="chip" data-a="list-range" data-r="${k}" aria-pressed="${f.range === k}">${l}</button>`).join('')}</div>
+      ${f.range === 'custom' ? `<div class="row2 mt"><div><label class="f" for="l-from">Nuo</label><input type="date" id="l-from" data-f="l-from" value="${esc(f.from)}"></div><div><label class="f" for="l-to">Iki</label><input type="date" id="l-to" data-f="l-to" value="${esc(f.to)}"></div></div>` : ''}
+      <div class="row2 mt">
+        <div><label class="f" for="l-cust">Pirkėjas</label><input type="search" id="l-cust" data-f="l-cust" list="dl-cust" autocomplete="off" placeholder="visi" value="${esc(f.customer)}"></div>
+        <div><label class="f" for="l-method">Apmokėjimas</label><select id="l-method" data-f="l-method">${methods.map(([v, l]) => `<option value="${v}"${f.method === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div>
+      </div>
+    </section>
+    <div id="list-res">${listResHtml()}</div>`;
+  }
+  function listResHtml() {
+    const f = ui.list, r = listRange(), q = C.custKey(f.customer), t = today();
+    const rows = S.sales.filter(s => s.date >= r.from && s.date <= r.to
+      && (!q || C.custKey(s.customer).includes(q))
+      && (!f.method || (f.method === 'likutis' ? L.remainingBySale.has(s.id) : s.method === f.method)))
+      .sort((a, b) => C.cmpRec(b, a));
+    if (!rows.length) return '<p class="empty">Pardavimų nerasta.</p>';
+    const calcs = new Map(), dayTot = new Map();
+    let rev = 0, prof = 0, left = 0;
+    for (const s of rows) {
+      const c = C.saleCalc(s);
+      calcs.set(s.id, c);
+      rev += C.cents(c.total); prof += C.cents(c.profit); left += C.cents(L.remainingBySale.get(s.id) || 0);
+      dayTot.set(s.date, (dayTot.get(s.date) || 0) + C.cents(c.total));
+    }
+    let html = `<div class="sumline"><span><b>${rows.length}</b> pard.</span><span><b>${M(rev / 100)}</b></span><span class="muted">pelnas ${M(prof / 100)}</span>${left ? `<span class="red">neapmokėta ${M(left / 100)}</span>` : ''}</div>`;
+    let last = '';
+    for (const s of rows.slice(0, f.limit)) {
+      if (s.date !== last) {
+        last = s.date;
+        const rel = s.date === t ? 'Šiandien, ' : s.date === C.addDays(t, -1) ? 'Vakar, ' : '';
+        html += `<div class="dayh"><span>${rel}${s.date}, ${C.WEEKDAYS[C.weekday(s.date)]}</span><span>${M(dayTot.get(s.date) / 100)}</span></div>`;
+      }
+      html += saleCardHtml(s, calcs.get(s.id));
+    }
+    if (rows.length > f.limit) html += `<button type="button" class="btn block mt" data-a="list-more">Rodyti daugiau (dar ${rows.length - f.limit})</button>`;
+    return html;
+  }
+  function saleCardHtml(s, c) {
+    const left = L.remainingBySale.get(s.id) || 0;
+    const items = s.items.map(it => {
+      const l = C.lineCalc(it);
+      return `${esc(it.name)} — ${Q(l.qty)} ${U(it.unit)} × ${M(l.price)}${l.disc > 0 ? ` <span class="warn">(−${M(l.disc)})</span>` : ''}`;
+    }).join('<br>');
+    const foot = ['Nr. ' + s.no, 'pelnas ' + M(c.profit)];
+    if (s.method === 'dalinis') foot.push(`sumokėta ${M(c.paid)} ${C.METHOD_LABEL[s.paidMethod].toLowerCase()}`);
+    if (left > 0) foot.push(`<span class="red">neapmokėta ${M(left)}</span>`);
+    else if (c.debt > 0) foot.push('<span class="ok">skola grąžinta</span>');
+    return `<article class="sale${left > 0 ? ' debt' : ''}">
+      <div class="sale-h"><span class="who">${s.customer ? esc(s.customer) : '<span class="muted">Be pirkėjo</span>'}</span><span class="badge m-${s.method}">${C.METHOD_LABEL[s.method]}</span>${s.sample ? '<span class="badge demo">pavyzdys</span>' : ''}<b>${M(c.total)}</b></div>
+      <div class="sale-items">${items}</div>
+      <div class="sale-f">${foot.join(' · ')}</div>
+      <div class="btns">
+        <button type="button" class="btn sm" data-a="sale-edit" data-id="${esc(s.id)}">Taisyti</button>
+        <button type="button" class="btn sm danger" data-a="sale-del" data-id="${esc(s.id)}">Ištrinti</button>
+        ${s.customer ? `<button type="button" class="btn sm" data-a="cust-open" data-key="${esc(C.custKey(s.customer))}">Pirkėjo istorija</button>` : ''}
+      </div>
+    </article>`;
+  }
+
+  /* ---------- Skolos ---------- */
+  function viewDebts() {
+    if (ui.cust) return viewCustomer(ui.cust);
+    const list = C.debtors(S, today(), L);
+    const total = list.reduce((a, d) => a + C.cents(d.balance), 0) / 100;
+    const late = list.filter(d => d.overdue).length;
+    let html = `<section class="card sumcard"><div class="l">Iš viso skolų</div><div class="v ${total > 0 ? 'red' : 'ok'}">${M(total)}</div>
+      <div class="muted">${list.length ? `${list.length} ${plural(list.length, 'skolininkas', 'skolininkai', 'skolininkų')}${late ? ` · <span class="red">${late} — ilgiau nei 14 d.</span>` : ''}` : 'Skolų nėra.'}</div></section>`;
+    html += list.map(d => `<button type="button" class="debtor${d.overdue ? ' overdue' : ''}" data-a="cust-open" data-key="${esc(d.key)}">
+        <span class="nm"><b>${esc(d.name)}</b><span class="age">nuo ${d.oldestDate} · ${d.days ? d.days + ' d.' : 'šiandien'}${d.overdue ? ' · vėluoja' : ''}</span></span>
+        <span class="amt">${M(d.balance)}</span><span class="chev" aria-hidden="true">›</span></button>`).join('');
+    const others = [...L.customers.values()].filter(c => !(c.balance > 0)).sort(byName);
+    if (others.length) {
+      html += `<details class="card others"><summary>Kiti pirkėjai be skolos (${others.length})</summary>${others.map(c => `<button type="button" class="orow" data-a="cust-open" data-key="${esc(c.key)}"><span>${esc(c.name)}</span>${c.balance < 0 ? `<span class="ok">permoka ${M(-c.balance)}</span>` : '<span class="chev" aria-hidden="true">›</span>'}</button>`).join('')}</details>`;
+    }
+    return html;
+  }
+  function viewCustomer(key) {
+    const c = L.customers.get(key);
+    if (!c) { ui.cust = null; return viewDebts(); }
+    const t = today(), bal = c.balance;
+    const days = c.oldestDate ? C.daysBetween(c.oldestDate, t) : 0;
+    const overdue = bal > 0 && days > C.OVERDUE_DAYS;
+    const lateIds = new Set(c.unpaid.filter(u => C.daysBetween(u.sale.date, t) > C.OVERDUE_DAYS).map(u => u.sale.id));
+    const ev = C.customerHistory(c).reverse();
+    let html = `<button type="button" class="link" data-a="cust-close">‹ Visos skolos</button>
+      <section class="card cust${overdue ? ' overdue' : ''}">
+        <h2>${esc(c.name)}</h2>
+        <div class="bigv ${bal > 0 ? 'red' : 'ok'}">${bal > 0 ? 'Skola ' + M(bal) : bal < 0 ? 'Permoka ' + M(-bal) : 'Skolos nėra'}</div>
+        ${bal > 0 ? `<div class="${overdue ? 'red' : 'muted'}">Seniausia neapmokėta: ${c.oldestDate} (${days ? days + ' d.' : 'šiandien'})${overdue ? ' — ilgiau nei 14 d.' : ''}</div>` : ''}
+        <div class="kv"><span>Iš viso pirkta</span><b>${M(c.boughtC / 100)}</b><span>Sumokėta perkant</span><b>${M((c.boughtC - c.debtC) / 100)}</b><span>Grąžinta vėliau</span><b>${M(c.paidLaterC / 100)}</b></div>
+        <button type="button" class="btn pri block mt" data-a="pay-open">Įvesti apmokėjimą</button>
+      </section>`;
+    if (bal > 0) {
+      html += `<section class="card"><h2>Priminimas</h2>
+        <textarea id="remind" aria-label="Priminimo tekstas">${esc(C.reminderText(c))}</textarea>
+        <div class="btns mt"><button type="button" class="btn pri" data-a="remind-copy">Kopijuoti priminimą</button>${navigator.share ? '<button type="button" class="btn" data-a="remind-share">Siųsti…</button>' : ''}</div></section>`;
+    }
+    html += `<section class="card"><h2>Istorija</h2>${ev.length ? ev.map(e => evHtml(e, lateIds)).join('') : '<p class="muted">Įrašų nėra.</p>'}</section>`;
+    return html;
+  }
+  function evHtml(e, lateIds) {
+    if (e.type === 'pay') {
+      const p = e.pay;
+      return `<div class="ev pay"><div><div class="d">${p.date}</div><div class="t">Apmokėjimas · ${C.METHOD_LABEL[p.method].toLowerCase()}${p.sample ? ' <span class="badge demo">pavyzdys</span>' : ''}</div>${p.note ? `<div class="small muted">${esc(p.note)}</div>` : ''}<button type="button" class="link dl" data-a="pay-del" data-id="${esc(p.id)}">Ištrinti apmokėjimą</button></div>
+        <div><div class="v">−${M(p.amount)}</div><div class="b">likutis ${M(e.balance)}</div></div></div>`;
+    }
+    const s = e.sale, c = e.calc, late = lateIds.has(s.id);
+    const items = s.items.map(it => `${esc(it.name)} ${Q(it.qty)} ${U(it.unit)}`).join(', ');
+    const how = C.MONEY.includes(s.method) ? `sumokėta iš karto (${C.METHOD_LABEL[s.method].toLowerCase()})`
+      : s.method === 'dalinis' ? `sumokėta ${M(c.paid)}, skolon ${M(c.debt)}` : `skolon ${M(c.debt)}`;
+    return `<div class="ev${late ? ' late' : ''}"><div><div class="d">${s.date} · Nr. ${s.no}${late ? ' · vėluoja' : ''}${s.sample ? ' <span class="badge demo">pavyzdys</span>' : ''}</div><div class="t">${items}</div><div class="small muted">${how}</div></div>
+      <div><div class="v">${M(c.total)}</div><div class="b">likutis ${M(e.balance)}</div></div></div>`;
+  }
+  const payChips = sel => C.MONEY.map(m => `<button type="button" class="chip" data-a="pay-method" data-m="${m}" aria-pressed="${sel === m}">${C.METHOD_LABEL[m]}</button>`).join('');
+  function openPay() {
+    const c = L.customers.get(ui.cust);
+    if (!c) return;
+    const bal = Math.max(c.balance, 0);
+    ui.payDraft = { key: c.key, method: 'grynais' };
+    openModal(`<h2>Apmokėjimas</h2>
+      <p class="muted">${esc(c.name)} · skola <b class="${bal > 0 ? 'red' : ''}">${M(bal)}</b></p>
+      <div class="fld"><label class="f" for="pay-amt">Suma, €</label><div class="disc"><input id="pay-amt" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${bal > 0 ? A2(bal) : ''}">${bal > 0 ? `<button type="button" class="chip" data-a="pay-full" data-v="${A2(bal)}">Visa</button>` : ''}</div></div>
+      <div class="fld"><label class="f" for="pay-date">Data</label><input type="date" id="pay-date" value="${today()}"></div>
+      <div class="fld"><span class="f">Būdas</span><div class="chips" id="pay-methods">${payChips('grynais')}</div></div>
+      <div class="fld"><label class="f" for="pay-note">Pastaba (neprivaloma)</label><input id="pay-note" autocomplete="off" maxlength="200"></div>
+      <div class="m-actions"><button type="button" class="btn" data-a="modal-close">Atšaukti</button><button type="button" class="btn pri" data-a="pay-save">Išsaugoti</button></div>`, '#pay-amt');
+  }
+  async function savePay() {
+    const d = ui.payDraft, c = d && L.customers.get(d.key);
+    if (!c) return;
+    const amt = C.parseNum($('#pay-amt').value), date = $('#pay-date').value, note = C.cleanName($('#pay-note').value).slice(0, 200);
+    if (amt == null || amt <= 0) return fieldErr('#pay-amt', 'Įveskite sumą, didesnę už 0.');
+    if (!C.isDate(date)) return fieldErr('#pay-date', 'Nurodykite datą.');
+    const a = C.round2(amt), bal = Math.max(c.balance, 0);
+    if (C.cents(a) > C.cents(bal) && !(await ask(`Suma ${M(a)} didesnė už skolą (${M(bal)}).\nSkirtumas bus įrašytas kaip permoka ir padengs kitas šio pirkėjo skolas. Tęsti?`))) return;
+    S.payments.push({ id: C.uid(), date, customer: c.name, amount: a, method: d.method, note, createdAt: Date.now() });
+    if (!save()) return;
+    closeModal();
+    render();
+    const nb = L.customers.get(d.key).balance;
+    toast(nb > 0 ? `Įrašyta ${M(a)}. Liko skolos ${M(nb)}` : nb < 0 ? `Įrašyta ${M(a)}. Permoka ${M(-nb)}` : `Įrašyta ${M(a)}. Skola grąžinta visa.`);
+    buzz();
+  }
+  async function deletePay(id) {
+    const p = S.payments.find(x => x.id === id);
+    if (!p) return;
+    if (!(await ask(`Ištrinti apmokėjimą ${M(p.amount)} (${p.date})?\nPirkėjo „${esc(p.customer)}“ skola padidės.`, { yes: 'Ištrinti', danger: true }))) return;
+    S.payments = S.payments.filter(x => x.id !== id);
+    save(); render(); toast('Apmokėjimas ištrintas');
+  }
+
+  /* ---------- Ataskaitos ---------- */
+  function viewReports() {
+    const r = ui.rep, t = today();
+    const range = C.periodRange(r.period, t, r.from, r.to);
+    const rep = C.report(S, range.from, range.to, L);
+    const periods = [['today', 'Šiandien'], ['week', 'Ši savaitė'], ['month', 'Šis mėnuo'], ['custom', 'Pasirinktas']];
+    const qty = Object.entries(rep.qtyByUnit).filter(([, v]) => v > 0).map(([u, v]) => `${Q(v)} ${U(u)}`).join(' · ') || '0';
+    const allDebt = C.debtors(S, t, L).reduce((a, d) => a + C.cents(d.balance), 0) / 100;
+    const bm = rep.byMethod;
+    const stat = (l, v, s, cls, wide) => `<div class="stat${wide ? ' wide' : ''}"><div class="l">${l}</div><div class="v ${cls || ''}">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+    const chartFrom = r.period === 'today' ? C.addDays(t, -6) : range.from;
+    return `<section class="card">
+      <div class="chips">${periods.map(([k, l]) => `<button type="button" class="chip" data-a="rep-period" data-p="${k}" aria-pressed="${r.period === k}">${l}</button>`).join('')}</div>
+      ${r.period === 'custom' ? `<div class="row2 mt"><div><label class="f" for="r-from">Nuo</label><input type="date" id="r-from" data-f="r-from" value="${esc(range.from)}"></div><div><label class="f" for="r-to">Iki</label><input type="date" id="r-to" data-f="r-to" value="${esc(range.to)}"></div></div>` : ''}
+      <p class="range">${range.from === range.to ? range.from + ', ' + C.WEEKDAYS[C.weekday(range.from)] : range.from + ' – ' + range.to}</p>
+      <div class="stats">
+        ${stat('Apyvarta', M(rep.revenue), rep.discount > 0 ? 'iš jos nuolaidų ' + M(rep.discount) : '')}
+        ${stat('Pelnas', M(rep.profit), rep.revenue > 0 ? 'marža ' + C.fmtPct(rep.profit / rep.revenue * 100) : '', rep.profit < 0 ? 'red' : 'ok')}
+        ${stat('Savikaina', M(rep.cost))}
+        ${stat('Pardavimų', String(rep.count))}
+        ${stat('Parduotas kiekis', qty, '', '', true)}
+        ${stat('Gauta pinigų', M(rep.received), `grynais ${M(bm.grynais)} · kortele ${M(bm.kortele)} · pavedimu ${M(bm.pavedimu)}${rep.repaid > 0 ? `<br>iš jų skolų grąžinimai ${M(rep.repaid)}` : ''}`, 'ok', true)}
+        ${stat('Liko skolose', M(rep.leftInDebt), `neapmokėta šio laikotarpio pardavimų dalis<br>visos skolos dabar: ${M(allDebt)}`, rep.leftInDebt > 0 ? 'red' : '', true)}
+      </div>
+    </section>
+    <section class="card"><h2>Pardavimai pagal dienas${r.period === 'today' ? ' (paskutinės 7 d.)' : ''}</h2>${chartHtml(chartFrom, range.to)}</section>
+    <section class="card"><h2>Populiariausios prekės</h2>${topHtml(rep)}</section>`;
+  }
+  function chartHtml(from, to) {
+    const ser = C.salesSeries(S, from, to), pts = ser.points, n = pts.length, t = today();
+    const max = Math.max(0, ...pts.map(p => p.value));
+    if (max <= 0) return '<p class="muted">Šiuo laikotarpiu pardavimų nėra.</p>';
+    const step = n <= 14 ? 1 : n <= 31 ? 3 : ser.monthly ? 1 : 5;
+    const name = p => (ser.monthly ? p.label + ' ' + p.sub : p.key);
+    const cols = pts.map(p => {
+      const h = Math.round(p.value / max * 1000) / 10;
+      const tip = `${name(p)}: ${M(p.value)} · ${p.count} pard.`;
+      return `<button type="button" class="col${p.key === t ? ' now' : ''}" data-a="bar" data-v="${esc(tip)}" title="${esc(tip)}" aria-label="${esc(tip)}" style="--h:${h}%">${n <= 7 && p.value > 0 ? `<span class="bv">${A2(p.value)}</span>` : ''}<i></i></button>`;
+    }).join('');
+    const xl = pts.map((p, i) => `<span class="${p.key === t ? 'now' : ''}">${i % step === 0 || p.key === t ? (ser.monthly ? p.label : p.label + (n <= 14 ? '<br>' + p.sub : '')) : ''}</span>`).join('');
+    const rows = pts.filter(p => p.value > 0).map(p => `<tr><td>${name(p)}</td><td>${p.count}</td><td>${M(p.value)}</td></tr>`).join('');
+    return `<div style="--minw:${n > 31 ? '16px' : '0px'}"><div class="cscroll"><div class="bars">${cols}</div><div class="xl" aria-hidden="true">${xl}</div></div></div>
+      <p class="cap muted" id="chart-cap">Daugiausia per ${ser.monthly ? 'mėnesį' : 'dieną'}: ${M(max)}. Paspauskite stulpelį — pamatysite sumą.</p>
+      <details class="more"><summary>Rodyti lentelę</summary><table class="tbl"><thead><tr><th>${ser.monthly ? 'Mėnuo' : 'Diena'}</th><th>Pard.</th><th>Suma</th></tr></thead><tbody>${rows}</tbody></table></details>`;
+  }
+  function topHtml(rep) {
+    if (!rep.topByQty.length) return '<p class="muted">Šiuo laikotarpiu pardavimų nėra.</p>';
+    const nameOf = p => { const cur = p.productId && S.products.find(x => x.id === p.productId); return esc(cur ? cur.name : p.name); };
+    const block = (title, list, val, fmt) => {
+      const top = list.slice(0, 5), max = Math.max(0, ...top.map(val));
+      return `<h3>${title}</h3><div class="top">${top.map((p, i) => `<div class="top-r"><span class="n">${i + 1}.</span><span>${nameOf(p)}</span><b>${fmt(p)}</b><span class="tb"><i style="width:${max > 0 ? Math.max(0, val(p)) / max * 100 : 0}%"></i></span></div>`).join('')}</div>`;
+    };
+    return block('Pagal kiekį', rep.topByQty, p => p.qty, p => `${Q(p.qty)} ${U(p.unit)}`)
+      + block('Pagal pelną', rep.topByProfit, p => p.profit, p => M(p.profit));
+  }
+
+  /* ---------- Prekės ---------- */
+  function viewProducts() {
+    const list = S.products.slice().sort(byName);
+    return '<button type="button" class="btn pri block mb" data-a="prod-new">+ Nauja prekė</button>' + (list.length ? list.map(p => {
+      const m = C.margin(p.cost, p.price);
+      return `<article class="card"><div class="prod-h"><b>${esc(p.name)}</b><span class="badge">${esc(p.unit)}</span>${p.sample ? '<span class="badge demo">pavyzdys</span>' : ''}</div>
+        <div class="kv"><span>Savikaina</span><b>${M(p.cost)}</b><span>Pardavimo kaina</span><b>${M(p.price)} / ${U(p.unit)}</b><span>Marža</span><b class="${m.eur < 0 ? 'red' : 'ok'}">${M(m.eur)}${m.pct == null ? '' : ' (' + C.fmtPct(m.pct) + ')'}</b></div>
+        <div class="btns mt"><button type="button" class="btn sm" data-a="prod-edit" data-id="${esc(p.id)}">Taisyti</button><button type="button" class="btn sm danger" data-a="prod-del" data-id="${esc(p.id)}">Ištrinti</button></div></article>`;
+    }).join('') : '<p class="empty">Prekių dar nėra — pridėkite pirmąją.</p>');
+  }
+  const unitChips = sel => C.UNITS.map(u => `<button type="button" class="chip" data-a="unit-pick" data-u="${u}" aria-pressed="${u === sel}">${u}</button>`).join('');
+  function marginHtml() {
+    const cost = C.parseNum($('#pf-cost').value || '0'), price = C.parseNum($('#pf-price').value);
+    if (cost == null || price == null || cost < 0 || price < 0) return '<span class="muted">Marža bus parodyta įvedus kainas.</span>';
+    const m = C.margin(cost, price);
+    return `Marža: <b class="${m.eur < 0 ? 'red' : 'ok'}">${M(m.eur)}${m.pct == null ? '' : ' (' + C.fmtPct(m.pct) + ')'}</b> <span class="muted">už 1 ${U(ui.prodDraft.unit)}</span>`;
+  }
+  function openProduct(id) {
+    const p = id ? S.products.find(x => x.id === id) : null;
+    ui.prodDraft = { id: p ? p.id : null, unit: p ? p.unit : 'vnt.' };
+    openModal(`<h2>${p ? 'Taisyti prekę' : 'Nauja prekė'}</h2>
+      <div class="fld"><label class="f" for="pf-name">Pavadinimas</label><input id="pf-name" autocomplete="off" autocapitalize="sentences" maxlength="80" value="${p ? esc(p.name) : ''}"></div>
+      <div class="fld"><span class="f">Matas</span><div class="chips" id="pf-units">${unitChips(ui.prodDraft.unit)}</div></div>
+      <div class="row2">
+        <div class="fld"><label class="f" for="pf-cost">Savikaina, €</label><input id="pf-cost" data-f="pf" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${p ? A2(p.cost) : ''}"></div>
+        <div class="fld"><label class="f" for="pf-price">Pardavimo kaina, €</label><input id="pf-price" data-f="pf" inputmode="decimal" autocomplete="off" placeholder="0,00" value="${p ? A2(p.price) : ''}"></div>
+      </div>
+      <div class="marginbox" id="pf-margin"></div>
+      ${p ? '<p class="small muted">Pakeista kaina galios naujiems pardavimams; ankstesni liks su ta kaina, už kurią parduota.</p>' : ''}
+      <div class="m-actions"><button type="button" class="btn" data-a="modal-close">Atšaukti</button><button type="button" class="btn pri" data-a="prod-save">Išsaugoti</button></div>`, p ? null : '#pf-name');
+    $('#pf-margin').innerHTML = marginHtml();
+  }
+  function saveProduct() {
+    const d = ui.prodDraft, name = C.cleanName($('#pf-name').value);
+    const cost = C.parseNum($('#pf-cost').value.trim() || '0'), price = C.parseNum($('#pf-price').value);
+    if (!name) return fieldErr('#pf-name', 'Įveskite pavadinimą.');
+    if (S.products.some(p => p.id !== d.id && C.custKey(p.name) === C.custKey(name))) return fieldErr('#pf-name', 'Prekė tokiu pavadinimu jau yra.');
+    if (cost == null || cost < 0) return fieldErr('#pf-cost', 'Patikrinkite savikainą.');
+    if (price == null || price < 0) return fieldErr('#pf-price', 'Įveskite pardavimo kainą.');
+    const fields = { name, unit: d.unit, cost: C.round2(cost), price: C.round2(price) };
+    if (d.id) {
+      const p = S.products.find(x => x.id === d.id);
+      if (!p) return;
+      Object.assign(p, fields);
+      delete p.sample; // pataisyta pavyzdinė prekė tampa jūsų
+    } else {
+      S.products.push(Object.assign({ id: C.uid() }, fields, { createdAt: Date.now() }));
+    }
+    if (!save()) return;
+    closeModal(); render(); toast(d.id ? 'Prekė pataisyta' : 'Prekė pridėta');
+  }
+  async function deleteProduct(id) {
+    const p = S.products.find(x => x.id === id);
+    if (!p) return;
+    if (!(await ask(`Ištrinti prekę „${esc(p.name)}“?\nAnkstesni pardavimai ir ataskaitos nepasikeis.`, { yes: 'Ištrinti', danger: true }))) return;
+    S.products = S.products.filter(x => x.id !== id);
+    save(); render(); toast('Prekė ištrinta');
+  }
+
+  /* ---------- Duomenys ---------- */
+  function viewData() {
+    const demo = countSample(), lb = S.meta.lastBackup;
+    const kb = (JSON.stringify(S).length / 1024).toFixed(1).replace('.', ',');
+    return `<section class="card"><h2>Atsarginė kopija</h2>
+      <p class="small muted">Visi duomenys laikomi tik šioje naršyklėje šiame įrenginyje. Reguliariai atsisiųskite kopiją ir laikykite ją kitur (pvz., nusiųskite sau el. paštu).</p>
+      <p class="small">Paskutinė kopija: <b>${lb ? `${lb} (prieš ${C.daysBetween(lb, today())} d.)` : 'dar nedaryta'}</b><br>Įrašų: ${S.products.length} prek., ${S.sales.length} pard., ${S.payments.length} apmok. · ${kb} KB</p>
+      <div class="btns"><button type="button" class="btn pri" data-a="exp-json">Atsisiųsti kopiją (JSON)</button><button type="button" class="btn" data-a="imp-json">Atkurti iš kopijos</button></div>
+      <input type="file" id="imp-file" accept=".json,application/json" hidden>
+    </section>
+    <section class="card"><h2>Eksportas į CSV (Excel)</h2>
+      <div class="btns"><button type="button" class="btn" data-a="exp-sales">Pardavimai</button><button type="button" class="btn" data-a="exp-debts">Skolos</button><button type="button" class="btn" data-a="exp-pays">Skolų apmokėjimai</button></div>
+    </section>
+    <section class="card"><h2>Pavyzdiniai duomenys</h2>
+      ${demo ? `<p class="small muted">Dabar yra ${demo} pavyzdinių įrašų (pažymėti „pavyzdys“). Jūsų pačių įvesti įrašai išvalant nedings.</p><button type="button" class="btn" data-a="sample-clear">Išvalyti pavyzdinius duomenis</button>`
+        : '<p class="small muted">Pavyzdžių nėra. Galite juos įkelti, jei norite dar kartą išbandyti.</p><button type="button" class="btn" data-a="sample-load">Įkelti pavyzdinius duomenis</button>'}
+    </section>
+    <section class="card"><h2>Skaičiavimų patikra</h2>
+      <p class="small muted">Testai naudoja savo bandomuosius duomenis — jūsų įrašai neliečiami. Kompiuteryje tą patį galima paleisti naršyklės konsolėje: <code>runTests()</code>.</p>
+      <button type="button" class="btn" data-a="run-tests">Paleisti testus</button><div id="test-out"></div>
+    </section>
+    <section class="card"><h2>Ištrinti viską</h2>
+      <p class="small muted">Ištrins visas prekes, pardavimus ir apmokėjimus iš šios naršyklės.</p>
+      <button type="button" class="btn danger" data-a="wipe">Ištrinti visus duomenis</button>
+    </section>`;
+  }
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  async function download(name, text, type) {
+    // iPhone programėlėje paprastas atsisiuntimas nepatikimas — atidarome bendrinimo langą („Įrašyti į Failus“, el. paštas…)
+    if (isIOS && navigator.canShare) {
+      const file = new File([text], name, { type });
+      if (navigator.canShare({ files: [file] })) {
+        try { await navigator.share({ files: [file], title: name }); return true; }
+        catch (e) { if (e.name === 'AbortError') return false; }
+      }
+    }
+    const url = URL.createObjectURL(new Blob([text], { type: type + ';charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+    return true;
+  }
+  async function exportJson() {
+    const ok = await download(`atsargine-kopija-${today()}.json`, JSON.stringify(Object.assign({ exportedAt: new Date().toISOString() }, S)), 'application/json');
+    if (!ok) return;
+    S.meta.lastBackup = today();
+    save();
+    render();
+    toast(isIOS ? 'Kopija paruošta' : 'Kopija atsisiųsta');
+  }
+  async function importFile(file) {
+    let data;
+    try { data = C.normalize(JSON.parse(await file.text())); }
+    catch (e) { return toast('Nepavyko nuskaityti: ' + (e instanceof SyntaxError ? 'failas sugadintas arba ne JSON' : e.message), true); }
+    const ok = await ask(`Atkurti duomenis iš „${esc(file.name)}“?\nFaile: ${data.products.length} prek., ${data.sales.length} pard., ${data.payments.length} apmok.\n\nDabartiniai duomenys (${S.sales.length} pard.) bus <b>pakeisti</b> failo duomenimis. Jei abejojate — pirmiau atsisiųskite dabartinių duomenų kopiją.`, { yes: 'Atkurti', danger: true });
+    if (!ok) return;
+    S = data;
+    if (!save()) return;
+    ui.cust = null;
+    render();
+    toast('Duomenys atkurti');
+  }
+  async function clearSamples() {
+    const n = countSample();
+    if (!n) return;
+    if (!(await ask(`Ištrinti pavyzdinius duomenis (${n} įr.)?\nJūsų pačių įvesti įrašai liks.`, { yes: 'Išvalyti', danger: true }))) return;
+    const ids = new Set(S.products.filter(p => p.sample).map(p => p.id));
+    S.products = S.products.filter(x => !x.sample);
+    S.sales = S.sales.filter(x => !x.sample);
+    S.payments = S.payments.filter(x => !x.sample);
+    if (!S.sales.length) S.nextNo = 1;
+    ui.sale.items = ui.sale.items.filter(it => !ids.has(it.productId));
+    if (ui.stash) ui.stash.items = ui.stash.items.filter(it => !ids.has(it.productId));
+    save(); saveDraft();
+    ui.cust = null;
+    render();
+    toast('Pavyzdžiai išvalyti');
+  }
+  function loadSamples() {
+    const d = C.sampleData(today());
+    for (const s of d.sales.sort(C.cmpRec)) s.no = S.nextNo++;
+    S.products.push(...d.products);
+    S.sales.push(...d.sales);
+    S.payments.push(...d.payments);
+    save(); render(); toast('Pavyzdžiai įkelti');
+  }
+  async function wipeAll() {
+    if (!(await ask(`Ištrinti VISUS duomenis?\n${S.products.length} prek., ${S.sales.length} pard., ${S.payments.length} apmok.`, { yes: 'Ištrinti', danger: true }))) return;
+    if (!(await ask('Ar tikrai? Šio veiksmo atšaukti nebus galima.\nJei neturite atsarginės kopijos — duomenys dings visam laikui.', { yes: 'Taip, ištrinti viską', danger: true }))) return;
+    S = C.normalize({ products: [], sales: [], payments: [] });
+    ui.sale = freshSale(); ui.stash = null; ui.cust = null;
+    save(); saveDraft(); render(); toast('Visi duomenys ištrinti');
+  }
+  function showTests() {
+    const r = C.runTests(console);
+    $('#test-out').innerHTML = `<p class="hint ${r.failed ? 'red' : 'ok'}">${r.passed} iš ${r.total} testų sėkmingi${r.failed ? ' — yra klaidų!' : ' ✔'}</p>
+      <ul class="testres">${r.results.map(x => `<li class="${x.ok ? '' : 'red'}">${x.ok ? '✔' : '✘'} ${esc(x.name)}${x.ok ? '' : `<br><small>gauta ${esc(JSON.stringify(x.got))}, tikėtasi ${esc(JSON.stringify(x.exp))}</small>`}</li>`).join('')}</ul>`;
+  }
+
+  /* ---------- Langai, pranešimai ---------- */
+  const modals = [];
+  function openModal(html, focusSel) {
+    const back = document.createElement('div');
+    back.className = 'mback';
+    back.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+    back.addEventListener('click', e => { if (e.target === back) closeModal(); });
+    document.body.appendChild(back);
+    modals.push(back);
+    document.body.classList.add('noscroll');
+    const f = focusSel && back.querySelector(focusSel);
+    if (f) { f.focus(); if (f.select) f.select(); }
+    return back;
+  }
+  function closeModal() {
+    const m = modals.pop();
+    if (m) { if (m.onClose) m.onClose(); m.remove(); }
+    if (!modals.length) document.body.classList.remove('noscroll');
+  }
+  function ask(msg, opts) {
+    opts = opts || {};
+    return new Promise(resolve => {
+      const m = openModal(`<p class="ask">${msg}</p><div class="m-actions"><button type="button" class="btn" data-r="0">${opts.no || 'Atšaukti'}</button><button type="button" class="btn ${opts.danger ? 'dangerfill' : 'pri'}" data-r="1">${opts.yes || 'Taip'}</button></div>`);
+      m.onClose = () => resolve(false);
+      m.addEventListener('click', e => {
+        const b = e.target.closest('[data-r]');
+        if (!b) return;
+        m.onClose = null;
+        closeModal();
+        resolve(b.dataset.r === '1');
+      });
+    });
+  }
+  let toastTimer;
+  function toast(msg, err) {
+    const t = $('#toast');
+    t.textContent = msg;
+    t.className = 'on' + (err ? ' err' : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = err ? 'err' : ''; }, err ? 4500 : 2800);
+  }
+  function fieldErr(sel, msg) {
+    const el = document.querySelector(sel);
+    if (el) { el.classList.add('bad'); el.focus(); }
+    toast(msg, true);
+  }
+  function buzz() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) { /* nebūtina */ } }
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; } catch (e) { /* bandome kitaip */ }
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, text.length);
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    ta.remove();
+    return ok;
+  }
+
+  /* ---------- Veiksmai ---------- */
+  const ACT = {
+    tab: el => go(el.dataset.tab),
+    data: () => { ui.dataView = !ui.dataView; ui.cust = null; render(); window.scrollTo(0, 0); },
+    add: el => addToCart(el.dataset.id),
+    qty: el => stepQty(+el.dataset.i, +el.dataset.d),
+    'line-rm': el => { ui.sale.items.splice(+el.dataset.i, 1); refreshSell(); saveDraft(); },
+    'cart-clear': async () => {
+      if (!(await ask('Išimti visas prekes iš krepšelio?', { yes: 'Išvalyti', danger: true }))) return;
+      ui.sale.items = []; refreshSell(); saveDraft();
+    },
+    'disc-show': el => {
+      ui.sale.items[+el.dataset.i].showDisc = true;
+      $('#cart').innerHTML = cartHtml();
+      const d = $('#d' + el.dataset.i);
+      if (d) d.focus();
+    },
+    'disc-type': el => {
+      const it = ui.sale.items[+el.dataset.i];
+      it.discType = it.discType === 'pct' ? 'eur' : 'pct';
+      if (it.discType === 'pct' && it.discValue > 100) it.discValue = 0;
+      $('#cart').innerHTML = cartHtml(); updateTotals(); saveDraft();
+    },
+    method: el => {
+      ui.sale.method = el.dataset.m;
+      $('#pay-sec').innerHTML = paySecHtml(); updateTotals(); saveDraft();
+      if (ui.sale.method === 'dalinis') $('#s-paid').focus();
+    },
+    'paid-method': el => { ui.sale.paidMethod = el.dataset.m; $('#pay-sec').innerHTML = paySecHtml(); saveDraft(); },
+    'cust-pick': el => {
+      const same = C.custKey(el.dataset.name) === C.custKey(ui.sale.customer);
+      ui.sale.customer = same ? '' : el.dataset.name;
+      $('#s-cust').value = ui.sale.customer;
+      onCustomerChange();
+    },
+    'sale-save': saveSale,
+    'edit-cancel': () => { ui.sale = ui.stash || freshSale(); ui.stash = null; saveDraft(); go('pardavimai'); },
+    'sale-edit': el => editSale(el.dataset.id),
+    'sale-del': el => deleteSale(el.dataset.id),
+    'list-range': el => {
+      ui.list.range = el.dataset.r; ui.list.limit = 50;
+      if (ui.list.range === 'custom' && !ui.list.from) { ui.list.from = C.addDays(today(), -29); ui.list.to = today(); }
+      render();
+    },
+    'list-more': () => { ui.list.limit += 100; $('#list-res').innerHTML = listResHtml(); },
+    'cust-open': el => { ui.tab = 'skolos'; ui.dataView = false; ui.cust = el.dataset.key; render(); window.scrollTo(0, 0); },
+    'cust-close': () => { ui.cust = null; render(); window.scrollTo(0, 0); },
+    'pay-open': openPay,
+    'pay-save': savePay,
+    'pay-del': el => deletePay(el.dataset.id),
+    'pay-full': el => { const i = $('#pay-amt'); i.value = el.dataset.v; i.classList.remove('bad'); },
+    'pay-method': el => { ui.payDraft.method = el.dataset.m; $('#pay-methods').innerHTML = payChips(el.dataset.m); },
+    'remind-copy': async () => {
+      const ta = $('#remind');
+      if (await copyText(ta.value)) toast('Priminimas nukopijuotas — įklijuokite žinutėje');
+      else { ta.focus(); ta.select(); toast('Nepavyko nukopijuoti automatiškai — tekstas pažymėtas, nukopijuokite jį ranka.', true); }
+    },
+    'remind-share': () => { navigator.share({ text: $('#remind').value }).catch(() => {}); },
+    'rep-period': el => {
+      ui.rep.period = el.dataset.p;
+      if (ui.rep.period === 'custom' && !ui.rep.from) { ui.rep.from = today().slice(0, 8) + '01'; ui.rep.to = today(); }
+      render();
+    },
+    bar: el => {
+      const was = el.classList.contains('sel');
+      document.querySelectorAll('.col.sel').forEach(b => b.classList.remove('sel'));
+      if (!was) el.classList.add('sel');
+      $('#chart-cap').textContent = was ? 'Paspauskite stulpelį — pamatysite sumą.' : el.dataset.v;
+    },
+    'prod-new': () => openProduct(null),
+    'prod-edit': el => openProduct(el.dataset.id),
+    'prod-del': el => deleteProduct(el.dataset.id),
+    'prod-save': saveProduct,
+    'unit-pick': el => { ui.prodDraft.unit = el.dataset.u; $('#pf-units').innerHTML = unitChips(el.dataset.u); $('#pf-margin').innerHTML = marginHtml(); },
+    'exp-json': exportJson,
+    'imp-json': () => $('#imp-file').click(),
+    'exp-sales': () => download(`pardavimai-${today()}.csv`, C.salesCsv(S), 'text/csv'),
+    'exp-debts': () => download(`skolos-${today()}.csv`, C.debtsCsv(S, today()), 'text/csv'),
+    'exp-pays': () => download(`apmokejimai-${today()}.csv`, C.paymentsCsv(S), 'text/csv'),
+    'sample-clear': clearSamples,
+    'sample-load': loadSamples,
+    'run-tests': showTests,
+    wipe: wipeAll,
+    'modal-close': closeModal,
+  };
+  function onCustomerChange() {
+    $('#cust-hint').innerHTML = custHintHtml();
+    $('#pay-sec').innerHTML = paySecHtml();
+    document.querySelectorAll('#cust-chips .chip').forEach(b => b.setAttribute('aria-pressed', String(C.custKey(b.dataset.name) === C.custKey(ui.sale.customer))));
+    saveDraft();
+  }
+
+  document.addEventListener('click', e => {
+    const el = e.target.closest('[data-a]');
+    if (!el || el.disabled) return;
+    const fn = ACT[el.dataset.a];
+    if (fn) { e.preventDefault(); fn(el); }
+  });
+  document.addEventListener('input', e => {
+    const t = e.target, f = t.dataset.f;
+    if (!f) return;
+    if (f === 's-date') { ui.sale.date = t.value; ui.sale.dateAuto = t.value === today(); t.classList.remove('bad'); saveDraft(); }
+    else if (f === 's-cust') { ui.sale.customer = t.value; t.classList.remove('bad'); onCustomerChange(); }
+    else if (f === 'qty' || f === 'price' || f === 'disc') lineInput(t, f);
+    else if (f === 'paid') { ui.sale.paid = t.value; const v = C.parseNum(t.value); t.classList.toggle('bad', t.value.trim() !== '' && !(v >= 0)); updateTotals(); saveDraft(); }
+    else if (f === 'prod-filter') { ui.prodFilter = t.value; $('#tiles').innerHTML = tilesHtml(); }
+    else if (f === 'l-cust') { ui.list.customer = t.value; ui.list.limit = 50; $('#list-res').innerHTML = listResHtml(); }
+    else if (f === 'pf') { t.classList.remove('bad'); $('#pf-margin').innerHTML = marginHtml(); }
+  });
+  document.addEventListener('change', e => {
+    const t = e.target, f = t.dataset.f;
+    if (t.id === 'imp-file') { if (t.files && t.files[0]) importFile(t.files[0]); t.value = ''; return; }
+    if (f === 'qty' || f === 'price' || f === 'disc') {
+      const it = ui.sale.items[+t.dataset.i], v = C.parseNum(t.value);
+      if (it && v != null && v >= 0 && !t.classList.contains('bad')) t.value = f === 'price' || (f === 'disc' && it.discType === 'eur') ? A2(v) : Q(v);
+    } else if (f === 'paid') {
+      const v = C.parseNum(t.value);
+      if (v != null && v >= 0) t.value = ui.sale.paid = A2(v);
+    } else if (f === 'l-from' || f === 'l-to') { ui.list[f === 'l-from' ? 'from' : 'to'] = t.value; $('#list-res').innerHTML = listResHtml(); }
+    else if (f === 'l-method') { ui.list.method = t.value; ui.list.limit = 50; $('#list-res').innerHTML = listResHtml(); }
+    else if (f === 'r-from' || f === 'r-to') { ui.rep[f === 'r-from' ? 'from' : 'to'] = t.value; render(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (!modals.length) return;
+    const top = modals[modals.length - 1];
+    if (e.key === 'Escape') closeModal();
+    else if (e.key === 'Enter' && e.target.tagName === 'INPUT' && top.contains(e.target)) {
+      const b = top.querySelector('[data-a$="-save"]');
+      if (b) { e.preventDefault(); b.click(); }
+    }
+  });
+  // Grįžus į programėlę kitą dieną — data vėl „šiandien“, skolų dienos perskaičiuojamos
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible') return;
+    const s = ui.sale;
+    if (!s.editId && s.dateAuto && s.date !== today()) s.date = today();
+    const a = document.activeElement;
+    if (!modals.length && !(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) render();
+  });
+  // Atidaryta keliuose languose — imame naujausius duomenis
+  window.addEventListener('storage', e => {
+    if (e.key !== KEY || !e.newValue) return;
+    try { S = C.normalize(JSON.parse(e.newValue)); if (!modals.length) render(); } catch (err) { /* ignoruojame */ }
+  });
+
+  render();
+
+  // Kai programėlė atidaryta iš https adreso — įsimena save, kad veiktų ir be interneto
+  if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
